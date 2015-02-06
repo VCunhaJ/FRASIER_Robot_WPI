@@ -1,0 +1,47 @@
+/*
+ * pre_operative_image.h
+ *
+ *  Created on: Dec 16, 2014
+ *      Author(s): Vanderlei Cunha Jr.
+																			Christian Kaan
+ */
+
+#ifndef PRE_OPERATIVE_IMAGE_H_
+#define PRE_OPERATIVE_IMAGE_H_
+
+#include<Fixtures/virtual_fixtures.h>
+#include<Fixtures/fixed_base_tool.h>
+#include <iostream>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
+using namespace std;
+using namespace ros;
+using namespace pcl;
+
+PointCloud<PointXYZRGB> SegmentedObject;
+PointCloud<PointXYZRGB>::Ptr SegmentedObjectDisplay (new PointCloud<PointXYZRGB>);
+
+PointCloud<PointXYZRGB>::Ptr INLIERPoints(new PointCloud<PointXYZRGB> ); // object for storing inlier point clouds
+PointCloud<PointXYZRGB>::Ptr segCloudPtr(new PointCloud<PointXYZRGB> ()); // object for storing desired points clouds
+PointCloud<PointXYZRGB>::Ptr segCloudPtrFiltered(new PointCloud<PointXYZRGB> ()); // object for storing desired points clouds
+PointCloud<PointXYZRGB>::Ptr planeExtractedPtr(new PointCloud<PointXYZRGB> ());  //object for storing extracted clouds
+PointCloud<PointXYZRGB>::Ptr concaveHull(new PointCloud<PointXYZRGB>); // object for displaying concave hull pointcloud
+PointCloud<PointXYZRGB>::Ptr planePtr(new PointCloud<PointXYZRGB> ());
+PointCloud<PointXYZRGB>::Ptr needsFilterPtr(new PointCloud<PointXYZRGB> ());
+/*Segmentation and algorith driven objects*/
+ModelCoefficients::Ptr coefficients(new ModelCoefficients); //object for storing model coefficients
+SACSegmentation<PointXYZRGB> segmentation; // segmentation object
+PointIndices::Ptr inlierIndices(new PointIndices); //point indices object
+
+Subscriber subscribeSegmentedObject;
+Publisher publishPreoperativeImage;
+
+
+double max_thresh = 0.020; //
+double max_iteration = 50;
+
+
+
+
+#endif /* PRE_OPERATIVE_IMAGE_H_ */

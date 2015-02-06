@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package>
+  <name>frasier_computer_vision</name>
+  <version>0.1.0</version>
+  <description>FRASIER Computer Vision Package</description>
+
+  <maintainer email="vcunha@wpi.edu">Vanderlei Cunha Jr.</maintainer>
+  <author email="vcunha@wpi.edu">Vanderlei Cunha Jr.</author>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Build/run dependencies on catkin packages -->
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>camera_info_manager</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>openslam_gmapping</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rostest</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  
+  
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>pcl_ros</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>camera_info_manager</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>openslam_gmapping</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+</package>

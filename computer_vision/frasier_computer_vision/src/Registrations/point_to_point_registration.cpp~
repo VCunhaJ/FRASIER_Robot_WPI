@@ -1,0 +1,58 @@
+/*
+ * point_to_point_registration.cpp
+ *
+ *  Created on: Dec 7, 2014
+ *      Author: Vanderlei Cunha Jr.
+ */
+
+
+
+#include<Fixtures/virtual_fixtures.h>
+#include<Fixtures/outlier_segmentation.h>
+//#include<Fixtures/Segmentations/plane_seg.h>
+
+using namespace std;
+using namespace pcl;
+using namespace ros;
+
+
+
+/*------------------------------------------------------------------------------------------------*/
+void PointToPointRegistration(const sensor_msgs::PointCloud2& msg){
+
+
+
+//Convert from PointCloud2 msg to PointCloud class object
+ //pcl::fromROSMsg(msg, *segCloudPtr);
+
+
+//Convert from PointCloud class to PointCloud2 msg
+//pcl::toROSMsg(*segCloudPtr, pc_data);
+
+//pub_seg.publish(pc_data);
+
+}
+
+
+/*------------------------------------------------------------------------------------------------*/
+int main (int argc, char** argv){
+
+//Initiate ROS
+ros::init(argc, argv,"point_to_point_registration_node");
+ros::NodeHandle node;
+
+
+//Subscribe to raw data topic
+
+//sub_raw_data = node.subscribe("/softkinetic_camera/depth/points", 1, &outlierDisplay);
+//pub_seg = node.advertise<sensor_msgs::PointCloud2>("/daVinci/Fixture/OutliersDisplay", 1);
+
+ros::Rate loopRate(10);
+while(node.ok()){
+
+	ros::spin();
+	loopRate.sleep();
+
+	}
+return 0;
+}

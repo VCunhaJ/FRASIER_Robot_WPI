@@ -1,0 +1,50 @@
+/*
+ * concave_hull.cpp
+ *
+ *  Created on: Dec 10, 2014
+ *      Author: Vanderlei Cunha Jr.
+ */
+#include<Fixtures/Fixtures/concave_hull.h>
+#include<Fixtures/virtual_fixtures.h>
+using namespace std;
+using namespace ros;
+using namespace pcl;
+
+
+void ConcaveCallBack(const sensor_msgs::PointCloud2 &object)
+{
+publish_concave.publish(object);
+fromROSMsg(object, *concavePtr);
+
+concaveObject.setInputCloud(concavePtr);
+concaveObject.setAlpha(0.1);
+concaveObject.reconstruct(*concaveCloudPtr);
+
+toROSMsg(*concaveCloudPtr,concaveProjectedCloud);
+
+publish_concave.publish(concaveProjectedCloud);
+
+}
+
+
+int main (int argc, char** argv)
+{
+
+ros::init(argc, argv, "concave_hull_node");
+ros::NodeHandle node;
+///daVinci/Fixture/OutliersDisplay
+subscribe_object= node.subscribe("/daVinci/Fixture/OutliersDisplay", 1, &ConcaveCallBack);
+publish_concave = node.advertise<sensor_msgs::PointCloud2>("daVinci/Fixture/Filters/Concave_Hull",1);
+
+
+ros::Rate loopRate(10);
+while(node.ok())
+{
+spin();
+loopRate.sleep();
+
+}
+
+return 0;
+//return EXIT_SUCCESS;
+}

@@ -1,0 +1,26 @@
+#ifndef 	PASSTHROUGH_FILTER_H
+#define PASSTHROUGH_FILTER_H
+
+#include <Fixtures/virtual_fixtures.h>
+
+using namespace std;
+using namespace pcl;
+using namespace ros;
+
+/*Publisher and Subscriber*/
+Subscriber subscribe_raw_data;
+Publisher publish_filter;
+
+/*Class Objects*/
+PointCloud<PointXYZRGB>::Ptr notFilteredCloudPtr(new PointCloud<PointXYZRGB>);
+PointCloud<PointXYZRGB>::Ptr passFilteredCloudPtr(new PointCloud<PointXYZRGB>);
+PassThrough<PointXYZRGB> filterCloud;
+
+
+sensor_msgs::PointCloud2 filteredCloudMsg;
+
+#define LOWER_LIMIT 0
+#define UPPER_LIMIT 2
+
+
+#endif

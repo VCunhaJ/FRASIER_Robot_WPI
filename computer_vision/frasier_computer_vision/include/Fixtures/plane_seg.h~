@@ -1,0 +1,38 @@
+#ifndef PLANE_SEG_H_
+#define PLANE_SEG_H_
+
+#include <Fixtures/virtual_fixtures.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/project_inliers.h>
+#include <pcl/visualization/cloud_viewer.h>
+
+/*Publisher and Subscriber*/
+ros::Subscriber subscribe_raw_data;
+ros::Publisher publish_plane;
+
+/*Objects*/
+
+
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr noPlane(new pcl::PointCloud<pcl::PointXYZRGB>);
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr projPoints	(new pcl::PointCloud<pcl::PointXYZRGB>);
+
+
+
+
+//sensor_msgs::PointCloud2 objectSegmented;
+
+
+
+/*Parameters*/
+double SACMODEL_PLANE_THRESHOLD =  0.01;
+
+
+
+
+
+
+#endif
