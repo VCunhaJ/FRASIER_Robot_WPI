@@ -5,7 +5,7 @@
  *      Author: Vanderlei Cunha Jr.
  */
 
-#include<Fixtures/Registrations/cloud_to_cloud_registration.h>
+#include<FRASIER/Registrations/cloud_to_cloud_registration.h>
 using namespace std;
 using namespace pcl;
 using namespace ros;

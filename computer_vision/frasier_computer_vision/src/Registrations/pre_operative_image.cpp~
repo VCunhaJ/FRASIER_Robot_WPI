@@ -4,7 +4,9 @@
  *  Created on: Dec 16, 2014
  *      Author(s): Vanderlei Cunha Jr.
                    Christian Kaan
+                   Jiaqi Ren
  *
+ *  Using an RGBD camera to obtain a preoperative image of the object
  *
  */
 #include<Fixtures/virtual_fixtures.h>

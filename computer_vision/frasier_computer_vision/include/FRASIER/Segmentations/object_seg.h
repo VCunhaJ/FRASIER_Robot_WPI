@@ -1,9 +1,9 @@
 #ifndef OBJECT_SEG_H_
 #define OBJECT_SEG_H_
 
-#include <Fixtures/virtual_fixtures.h>
+#include <FRASIER/frasier_main.h>
 #include <pcl/segmentation/extract_clusters.h>
-#include <Fixtures/Filters/radius_conditional_filter.h>
+//#include <Fixtures/Filters/radius_conditional_filter.h>
 using namespace std;
 using namespace ros;
 using namespace pcl;

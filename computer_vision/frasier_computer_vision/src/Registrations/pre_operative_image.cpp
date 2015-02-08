@@ -9,8 +9,8 @@
  *  Using an RGBD camera to obtain a preoperative image of the object
  *
  */
-#include<Fixtures/virtual_fixtures.h>
-#include<Fixtures/Registrations/pre_operative_image.h>
+#include<FRASIER/frasier_main.h>
+#include<FRASIER/Registrations/pre_operative_image.h>
 
 using namespace std;
 using namespace ros;

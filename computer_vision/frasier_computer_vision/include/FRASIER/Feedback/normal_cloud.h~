@@ -7,7 +7,7 @@
 
 #ifndef NORMAL_CLOUD_H_
 #define NORMAL_CLOUD_H_
-#include<Fixtures/virtual_fixtures.h>
+#include<FRASIER/virtual_fixtures.h>
 using namespace std;
 using namespace ros;
 using namespace pcl;

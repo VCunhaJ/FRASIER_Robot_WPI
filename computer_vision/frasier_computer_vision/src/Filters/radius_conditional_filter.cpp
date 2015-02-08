@@ -13,8 +13,8 @@
  *      
  *
  */
-#include <Fixtures/virtual_fixtures.h>
-#include <Fixtures/Filters/radius_conditional_filter.h>
+#include <FRASIER/frasier_main.h>
+#include <FRASIER/Filters/radius_conditional_filter.h>
 
 using namespace pcl;
 using namespace std;
@@ -45,8 +45,8 @@ int main (int argc, char** argv)
 
 ros::init(argc, argv, "radius_conditional_filter_node");
 ros::NodeHandle node;
-subscribe_raw_data = node.subscribe("/FRAISER/Fixture/BigPlaneRemoved", 1, &RadiusFilterCallBack);
-publish_radius_filter = node.advertise<sensor_msgs::PointCloud2>("/FRAISER/Fixture/RadiusConditionalFilter",1);
+subscribe_raw_data = node.subscribe("/FRASIER/Fixture/BigPlaneRemoved", 1, &RadiusFilterCallBack);
+publish_radius_filter = node.advertise<sensor_msgs::PointCloud2>("/FRASIER/Fixture/RadiusConditionalFilter",1);
 
 
 ros::Rate loopRate(10);

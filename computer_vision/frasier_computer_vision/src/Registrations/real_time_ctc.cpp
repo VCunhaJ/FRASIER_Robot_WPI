@@ -11,9 +11,9 @@
 
 
 
-#include<Fixtures/virtual_fixtures.h>
-#include<Fixtures/Registrations/real_time_ctc.h>
-#include<Fixtures/Registrations/cloud_to_cloud_registration.h>
+#include<FRASIER/frasier_main.h>
+#include<FRASIER/Registrations/real_time_ctc.h>
+#include<FRASIER/Registrations/cloud_to_cloud_registration.h>
 
 using namespace std;
 using namespace ros;

@@ -6,8 +6,8 @@
  *
  *
  */
-#include<Fixtures/virtual_fixtures.h>
-#include<Fixtures/Images/normal_components.h>
+#include<FRASIER/frasier_main.h>
+#include<FRASIER/Images/normal_components.h>
 
 using namespace std;
 using namespace ros;

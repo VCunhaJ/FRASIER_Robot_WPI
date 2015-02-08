@@ -1,7 +1,7 @@
-#ifndef 	PASSTHROUGH_FILTER_H
+#ifndef PASSTHROUGH_FILTER_H
 #define PASSTHROUGH_FILTER_H
 
-#include <Fixtures/virtual_fixtures.h>
+#include <FRASIER/virtual_fixtures.h>
 
 using namespace std;
 using namespace pcl;
@@ -16,7 +16,7 @@ PointCloud<PointXYZRGB>::Ptr notFilteredCloudPtr(new PointCloud<PointXYZRGB>);
 PointCloud<PointXYZRGB>::Ptr passFilteredCloudPtr(new PointCloud<PointXYZRGB>);
 PassThrough<PointXYZRGB> filterCloud;
 
-
+/*Sensor Messages*/
 sensor_msgs::PointCloud2 filteredCloudMsg;
 
 #define LOWER_LIMIT 0

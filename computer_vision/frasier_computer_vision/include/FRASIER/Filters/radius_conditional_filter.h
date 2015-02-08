@@ -1,7 +1,7 @@
 #ifndef RADIUS_CONDITIONAL_FILTER_H
 #define RADIUS_CONDITIONAL_FILTER_H
 
-#include <Fixtures/virtual_fixtures.h>
+#include <FRASIER/frasier_main.h>
 using namespace std;
 using namespace pcl;
 using namespace ros;
@@ -19,7 +19,7 @@ RadiusOutlierRemoval<PointXYZRGB> radiusFilter;
 sensor_msgs::PointCloud2 filteredCloud;
 
 /*Parameters*/
-const double RADIUS = 0.8;
+const double RADIUS = 0.08;
 
 
 

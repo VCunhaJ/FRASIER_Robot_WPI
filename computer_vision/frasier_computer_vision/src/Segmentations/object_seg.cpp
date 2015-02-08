@@ -12,8 +12,8 @@
  *
  *
  */
-#include <Fixtures/virtual_fixtures.h>
-#include <Fixtures/Segmentations/object_seg.h>
+#include <FRASIER/frasier_main.h>
+#include <FRASIER/Segmentations/object_seg.h>
 
 using namespace pcl;
 using namespace std;

@@ -12,8 +12,8 @@
 
 
 
-#include<Fixtures/virtual_fixtures.h>
-#include<Fixtures/Registrations/intraoperative_image.h>
+#include<FRASIER/frasier_main.h>
+#include<FRASIER/Registrations/intraoperative_image.h>
 
 using namespace std;
 using namespace ros;

@@ -14,8 +14,8 @@
  *
  */
 
-#include<Fixtures/virtual_fixtures.h>
-#include<Fixtures/Segmentations/outlier_segmentation.h>
+#include<FRASIER/frasier_main.h>
+#include<FRASIER/Segmentations/outlier_segmentation.h>
 
 using namespace std;
 using namespace pcl;
@@ -54,6 +54,7 @@ RandomSampleConsensus<PointXYZRGB> ransac(model);
 
 /*------------------------------------------------------------------------------------------------*/
 void outlierDisplay(const sensor_msgs::PointCloud2& msg){
+
 
 
 
@@ -102,22 +103,23 @@ pub_seg.publish(pc_data);
 
 }
 
+
 }
 /*------------------------------------------------------------------------------------------------*/
 
 int main (int argc, char** argv){
 
-	//Initiate ROS
+//Initiate ROS
 
-ros::init(argc, argv,"outlier_display_node");
-ros::NodeHandle node;
+init(argc, argv,"outlier_display_node");
+NodeHandle node;
 
 
-	//Subscribe to raw data topic
+//Subscribe to raw data topic
 
-sub_raw_data = node.subscribe("/daVinci/Fixture/PassthroughFilter", 1, &outlierDisplay);
-pub_seg = node.advertise<sensor_msgs::PointCloud2>("/FRAISER/Fixture/BigPlaneRemoved", 1);
-ros::Rate loopRate(10);
+sub_raw_data = node.subscribe("/FRASIER/Fixture/PassthroughFilter", 1, &outlierDisplay);
+pub_seg = node.advertise<sensor_msgs::PointCloud2>("/FRASIER/Fixture/BigPlaneRemoved", 1);
+Rate loopRate(10);
 while(node.ok()){
 
 	ros::spin();

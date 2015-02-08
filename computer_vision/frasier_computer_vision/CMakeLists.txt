@@ -73,7 +73,11 @@ add_executable(concave_hull_node src/Fixtures/concave_hull.cpp)
 
 #Segmentations Executable
 add_executable(outlier_display_node src/Segmentations/outlier_segmentation.cpp)
-add_executable(object_seg_node src/Segmentations/object_seg.cpp)
+#add_executable(object_seg_node src/Segmentations/object_seg.cpp)
+
+#Objects Executable
+#add_executable(euclidean_cluster_node src/Objects/euclidean_cluster.cpp)
+
 
 #Tracking Executable
 
@@ -107,7 +111,10 @@ target_link_libraries(concave_hull_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARI
 
 #Segmentations Target
 target_link_libraries(outlier_display_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
-target_link_libraries(object_seg_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
+#target_link_libraries(object_seg_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
+
+#Objects Target
+#target_link_libraries(euclidean_cluster_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
 
 
 

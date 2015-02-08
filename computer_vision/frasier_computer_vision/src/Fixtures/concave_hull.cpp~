@@ -4,8 +4,9 @@
  *  Created on: Dec 10, 2014
  *      Author: Vanderlei Cunha Jr.
  */
-#include<Fixtures/concave_hull.h>
-#include<Fixtures/virtual_fixtures.h>
+ #include<FRASIER/frasier_main.h>
+#include<FRASIER/Fixtures/concave_hull.h>
+
 using namespace std;
 using namespace ros;
 using namespace pcl;

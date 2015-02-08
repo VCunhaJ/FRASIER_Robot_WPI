@@ -4,7 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /PointCloud22
+        - /PointCloud21
       Splitter Ratio: 0.5
     Tree Height: 748
   - Class: rviz/Selection
@@ -59,7 +59,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -72,10 +72,10 @@ Visualization Manager:
       Size (Pixels): 2
       Size (m): 0.001
       Style: Points
-      Topic: /FRAISER/Fixture/RadiusConditionalFilter
+      Topic: /FRASIER/Fixture/RadiusConditionalFilter
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/Image
       Enabled: true
       Image Topic: /softkinetic_camera/rgb/image_color
@@ -139,7 +139,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -152,10 +152,10 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.01
       Style: Flat Squares
-      Topic: /FRAISER/Fixture/RadiusConditionalFilter
+      Topic: /FRASIER/Fixture/RadiusConditionalFilter
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

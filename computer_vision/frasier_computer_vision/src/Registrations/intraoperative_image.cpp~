@@ -2,12 +2,17 @@
  * intraoperative_image.cpp
  *
  *  Created on: Dec 16, 2014
- *      Author: Vanderlei Cunha Jr.
+ *      Author(s): Vanderlei Cunha Jr.
+ *                 Christian Kaan
+ *                 Jiaqi Ren
+ *
+ *      Uses a RGBD camera to obtain an intraoperative image of the object
+ *
  */
 
 
 
-#include<Fixtures/virtual_fixtures.h>
+#include<FRASIER/frasier_main.h>
 #include<Fixtures/Registrations/intraoperative_image.h>
 
 using namespace std;

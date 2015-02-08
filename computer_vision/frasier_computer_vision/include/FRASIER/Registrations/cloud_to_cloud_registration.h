@@ -7,7 +7,7 @@
 
 #ifndef CLOUD_TO_CLOUD_REGISTRATION_H_
 #define CLOUD_TO_CLOUD_REGISTRATION_H_
-
+#include<FRASIER/frasier_main.h>
 #include <limits>
 #include <fstream>
 #include <vector>
