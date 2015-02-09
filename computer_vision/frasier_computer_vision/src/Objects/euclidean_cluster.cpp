@@ -19,7 +19,7 @@ using namespace std;
 using namespace ros;
 using namespace pcl;
 
-
+//trying new shit
 
 void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
 {
