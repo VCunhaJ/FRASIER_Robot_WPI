@@ -20,7 +20,6 @@ using namespace ros;
 using namespace pcl;
 
 
-
 void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
 {
 
@@ -40,18 +39,20 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  int i = 0;
  for (it = clusterIndices.begin(); it != clusterIndices.end(); ++it)
  {
-    for(pit = it->indices.begin (); pit != it->indices.end (); pit++)
+    PointCloud<PointXYZ>::Ptr clustersPtr (new PointCloud<PointXYZ>);
+    for(pit = it->indices.begin (); pit != it->indices.end (); ++pit)
     clustersPtr->points.push_back(segmentedObjectsPtr->points[*pit]);
     clustersPtr->width = clustersPtr->points.size();
     clustersPtr->height = 1;
     clustersPtr->is_dense = true;
     
+    clusterDisplay = clustersPtr->points.size();
+    cerr<<"Points in Cloud: "<<clusterDisplay<<endl;
+    cerr<<"Number of Clusters: "<<i<<endl;
  i++;
  }
-    clusterDisplay = clustersPtr->points.size();
-    cerr<<"Points in Cluster: "<<clusterDisplay<<endl;
  
-
+   
 
 }
 
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "euclidean_cluster_node");
   ros::NodeHandle node;
 
-
+  
   subSegmentedObjects = node.subscribe("/FRASIER/Fixture/RadiusConditionalFilter",1, &EuclideanCallback);
     
 
