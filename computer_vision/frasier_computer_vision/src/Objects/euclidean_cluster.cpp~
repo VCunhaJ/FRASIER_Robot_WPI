@@ -1,5 +1,5 @@
 /*
- * Author(s): Vanderlei Cunha Jr.
+ * Author(s): Vanderlei Cunha Jr., Kristina Walker
  * PARbot MQP
  * Created December 1, 2014
  *
@@ -13,7 +13,7 @@
  */
 #include<FRASIER/frasier_main.h>
 #include<FRASIER/Objects/euclidean_cluster.h>
-#include<vector>
+
 
 using namespace std;
 using namespace ros;
@@ -37,18 +37,20 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  euclideanExtraction.setInputCloud(segmentedObjectsPtr);
  euclideanExtraction.extract(clusterIndices);
  
+ int i = 0;
  for (it = clusterIndices.begin(); it != clusterIndices.end(); ++it)
  {
-    for(pit = it->indices.begin (); pit != it->indices.end (); ++pit)
+    for(pit = it->indices.begin (); pit != it->indices.end (); pit++)
     clustersPtr->points.push_back(segmentedObjectsPtr->points[*pit]);
     clustersPtr->width = clustersPtr->points.size();
     clustersPtr->height = 1;
     clustersPtr->is_dense = true;
     
-    cout<<"Points in Cluster: "<<clustersPtr->points.size()<<endl;
-    stream<<"Number of Clusters: "<<i<<endl;
-    i++;
+ i++;
  }
+    clusterDisplay = clustersPtr->points.size();
+    cerr<<"Points in Cluster: "<<clusterDisplay<<endl;
+ 
 
 
 }

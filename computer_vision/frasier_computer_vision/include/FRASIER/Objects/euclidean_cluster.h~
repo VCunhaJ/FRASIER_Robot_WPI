@@ -7,15 +7,13 @@ using namespace pcl;
 
 #include <pcl/ModelCoefficients.h>
 #include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
 #include <pcl/filters/extract_indices.h>
-#include <pcl/filters/voxel_grid.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/segmentation/extract_clusters.h
 #include <pcl/PointIndices.h>
 
 /*Subscriber*/
@@ -29,17 +27,18 @@ search::KdTree<PointXYZ>::Ptr kdTreePtr (new search::KdTree<PointXYZ>);
 vector<PointIndices> clusterIndices;
 EuclideanClusterExtraction<PointXYZ> euclideanExtraction;
 
-/*Iterators*/
-int i = 0;
+/*Iterators and Serialization*/
+
 std::vector<pcl::PointIndices>::const_iterator it;
-std::vector<int>::const_iterator pointIterator;
-stringstream stream;
+std::vector<int>::const_iterator pit;
+stringstream ss;
+int clusterDisplay;
 
 
 /*Thresholds*/
-double clusterTolerance;
-int minSize;
-int maxSize;
+double clusterTolerance = 0.05;
+int minSize = 1000;
+int maxSize = 25000;
 
 
 
