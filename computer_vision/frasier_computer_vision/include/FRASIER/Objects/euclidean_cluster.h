@@ -1,3 +1,6 @@
+#ifndef EUCLIDEAN_CLUSTER_H_
+#define EUCLIDEAN_CLUSTER_H_
+
 #include<FRASIER/frasier_main.h>
 
 
@@ -41,4 +44,4 @@ int minSize = 1000;
 int maxSize = 6000;
 
 
-
+#endif

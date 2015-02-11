@@ -76,7 +76,8 @@ add_executable(outlier_display_node src/Segmentations/outlier_segmentation.cpp)
 #add_executable(object_seg_node src/Segmentations/object_seg.cpp)
 
 #Objects Executable
-add_executable(euclidean_cluster_node src/Objects/euclidean_cluster.cpp)
+#add_executable(euclidean_cluster_node src/Objects/euclidean_cluster.cpp)
+add_executable(region_growing_seg_node src/Objects/region_growing.cpp)
 
 
 #Tracking Executable
@@ -114,7 +115,8 @@ target_link_libraries(outlier_display_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBR
 #target_link_libraries(object_seg_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
 
 #Objects Target
-target_link_libraries(euclidean_cluster_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
+#target_link_libraries(euclidean_cluster_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(region_growing_seg_node ${PCL_LIBRARIES} ${DepthSenseSDK_LIBRARIES} ${catkin_LIBRARIES})
 
 
 

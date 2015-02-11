@@ -1,0 +1,43 @@
+#ifndef REGION_GROWING_H_
+#define REGION_GROWING_H_
+
+#include<FRASIER/frasier_main.h>
+
+#include <iostream>
+#include <vector>
+#include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/search/search.h>
+#include <pcl/search/kdtree.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/segmentation/region_growing.h>
+
+using namespace std;
+using namespace ros;
+using namespace pcl;
+
+/*Subscriber(s) and Publisher(s)*/
+Subscriber subSegmentedObjects;
+/*Objects*/
+PointCloud<PointXYZ>::Ptr mainCloudPtr (new PointCloud<PointXYZ>);
+search::Search<PointXYZ>::Ptr treePtr = boost::shared_ptr<search::Search<PointXYZ> > (new search::KdTree<PointXYZ>);
+PointCloud<Normal>::Ptr normalPtr (new PointCloud<Normal>);
+NormalEstimation<PointXYZ, Normal> normalEstimator;
+
+IndicesPtr indicesVector (new vector<int>);
+RegionGrowing<PointXYZ, Normal> regionGrowing;
+
+vector<PointIndices> numClusters; //object to store number of clusters
+
+/*Parameterization*/
+short int kNeighborhood = 30; //used in calculating normal surfaces of clusters
+int minClusterSize = 50;
+int maxClusterSize = 10000;
+short int numNeighbours = 20;
+float smoothThresh = (3.0/180.0 * M_PI); //3 degrees
+double curvatureThresh = 1.0;
+
+
+#endif

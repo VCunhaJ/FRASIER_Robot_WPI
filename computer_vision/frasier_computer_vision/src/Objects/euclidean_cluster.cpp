@@ -40,19 +40,22 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  for (it = clusterIndices.begin(); it != clusterIndices.end(); ++it)
  {
     PointCloud<PointXYZ>::Ptr clustersPtr (new PointCloud<PointXYZ>);
-    for(pit = it->indices.begin (); pit != it->indices.end (); ++pit)
+    
+    for(pit = it->indices.begin (); pit != it->indices.end (); pit++)
+    
     clustersPtr->points.push_back(segmentedObjectsPtr->points[*pit]);
     clustersPtr->width = clustersPtr->points.size();
     clustersPtr->height = 1;
     clustersPtr->is_dense = true;
     
     clusterDisplay = clustersPtr->points.size();
-    cerr<<"Points in Cloud: "<<clusterDisplay<<endl;
-    cerr<<"Number of Clusters: "<<i<<endl;
+ //   cerr<<"Points in Cloud: "<<clusterDisplay<<endl;
+
  i++;
  }
  
-   
+ int clusterLenght = clusterIndices.size();
+//    cerr<<"Number of Clusters: "<<clusterLenght<<endl;
 
 }
 
