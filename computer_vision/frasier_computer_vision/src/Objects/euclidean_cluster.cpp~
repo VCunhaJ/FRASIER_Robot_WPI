@@ -29,6 +29,7 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  
  kdTreePtr->setInputCloud(segmentedObjectsPtr);
  
+ euclideanExtraction.setSearchMethod(kdTreePtr);
  euclideanExtraction.setClusterTolerance(clusterTolerance);
  euclideanExtraction.setMinClusterSize(minSize);
  euclideanExtraction.setMaxClusterSize(maxSize);
@@ -39,8 +40,7 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  int i = 0;
  for (it = clusterIndices.begin(); it != clusterIndices.end(); ++it)
  {
-    PointCloud<PointXYZ>::Ptr clustersPtr (new PointCloud<PointXYZ>);
-    
+        
     for(pit = it->indices.begin (); pit != it->indices.end (); pit++)
     
     clustersPtr->points.push_back(segmentedObjectsPtr->points[*pit]);
@@ -54,9 +54,12 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  i++;
  }
  
- int clusterLenght = clusterIndices.size();
-//    cerr<<"Number of Clusters: "<<clusterLenght<<endl;
+ int clusterLength = clusterIndices.size();
+    //cerr<<"Number of Clusters: "<<clusterLength<<endl;
 
+    ROS_INFO("Found %lu clusters:", clusterIndices.size());
+    
+    clusterIndices.clear();
 }
 
 int main(int argc, char **argv)

@@ -34,7 +34,7 @@ vector<PointIndices> numClusters; //object to store number of clusters
 /*Parameterization*/
 short int kNeighborhood = 30; //used in calculating normal surfaces of clusters
 int minClusterSize = 50;
-int maxClusterSize = 10000;
+int maxClusterSize = 60000;
 short int numNeighbours = 20;
 float smoothThresh = (3.0/180.0 * M_PI); //3 degrees
 double curvatureThresh = 1.0;

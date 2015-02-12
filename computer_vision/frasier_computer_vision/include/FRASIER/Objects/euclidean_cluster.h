@@ -23,25 +23,25 @@ using namespace pcl;
 Subscriber subSegmentedObjects;
 
 /*Object for sorting clusters*/
-PointCloud<PointXYZ>::Ptr segmentedObjectsPtr (new PointCloud<PointXYZ>);
-PointCloud<PointXYZ>::Ptr cloudFilteredPtr (new PointCloud<PointXYZ>);
-PointCloud<PointXYZ>::Ptr clustersPtr (new PointCloud<PointXYZ>);
-search::KdTree<PointXYZ>::Ptr kdTreePtr (new search::KdTree<PointXYZ>);
+PointCloud<PointXYZRGB>::Ptr segmentedObjectsPtr (new PointCloud<PointXYZRGB>);
+PointCloud<PointXYZRGB>::Ptr cloudFilteredPtr (new PointCloud<PointXYZRGB>);
+PointCloud<PointXYZRGB>::Ptr clustersPtr (new PointCloud<PointXYZRGB>);
+search::KdTree<PointXYZRGB>::Ptr kdTreePtr (new search::KdTree<PointXYZRGB>);
 vector<PointIndices> clusterIndices;
-EuclideanClusterExtraction<PointXYZ> euclideanExtraction;
+EuclideanClusterExtraction<PointXYZRGB> euclideanExtraction;
 
 /*Iterators and Serialization*/
 
 std::vector<pcl::PointIndices>::const_iterator it;
 std::vector<int>::const_iterator pit;
 stringstream ss;
-int clusterDisplay;
+long int clusterDisplay;
 
 
 /*Thresholds*/
-double clusterTolerance = 0.05;
-int minSize = 1000;
-int maxSize = 6000;
+double clusterTolerance = 0.02;
+int minSize = 100;
+int maxSize = 2500;
 
 
 #endif

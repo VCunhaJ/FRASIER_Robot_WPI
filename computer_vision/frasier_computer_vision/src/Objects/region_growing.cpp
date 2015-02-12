@@ -44,6 +44,8 @@ void RegionGrowingCallback(const sensor_msgs::PointCloud2& objects)
 //Convert from PointCloud2 msg to PointCloud class object
 pcl::fromROSMsg(objects, *mainCloudPtr);
  
+//cerr << "Points in a FUCKING CLOUD " << mainCloudPtr->points.size()<<endl;
+
 normalEstimator.setSearchMethod(treePtr);//method is kd-tree (d = 2.5D)
 normalEstimator.setInputCloud(mainCloudPtr);
 normalEstimator.setKSearch(kNeighborhood);
@@ -65,7 +67,8 @@ regionGrowing.setCurvatureThreshold (curvatureThresh);
 regionGrowing.extract (numClusters);
   
 //Display Cloud and Cluster on Terminal
-cerr << "Number of clusters is equal to " << numClusters.size () << std::endl;
+
+//cerr << "Number of clusters is equal to " << numClusters.size ()<<endl;
 
 
 
