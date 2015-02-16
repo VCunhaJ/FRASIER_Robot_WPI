@@ -3,7 +3,8 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /PointCloud21
       Splitter Ratio: 0.5
     Tree Height: 748
   - Class: rviz/Selection
@@ -56,9 +57,9 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: RGB8
+      Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -74,7 +75,7 @@ Visualization Manager:
       Topic: /FRASIER/Fixture/RadiusConditionalFilter
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/Image
       Enabled: true
       Image Topic: /softkinetic_camera/rgb/image_color
@@ -136,9 +137,9 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: RGB8
+      Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -151,10 +152,10 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.01
       Style: Flat Squares
-      Topic: /FRASIER/Fixture/RadiusConditionalFilter
+      Topic: /FRASIER/Objects/SurfaceReconstruction
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -179,22 +180,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.37547
+      Distance: 0.565717
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0298415
-        Y: -0.220362
-        Z: 0.19712
+        X: 0.000969336
+        Y: -0.288918
+        Z: 0.181006
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.0202035
+      Pitch: 0.019797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.55043
+      Yaw: 1.22543
     Saved: ~
 Window Geometry:
   Color Image:

@@ -4,9 +4,7 @@
 #include<FRASIER/frasier_main.h>
 
 
-using namespace std;
-using namespace ros;
-using namespace pcl;
+
 
 #include <pcl/ModelCoefficients.h>
 #include <pcl/point_types.h>
@@ -19,6 +17,9 @@ using namespace pcl;
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/PointIndices.h>
 
+using namespace std;
+using namespace ros;
+using namespace pcl;
 /*Subscriber*/
 Subscriber subSegmentedObjects;
 
@@ -39,7 +40,7 @@ long int clusterDisplay;
 
 
 /*Thresholds*/
-double clusterTolerance = 0.005;
+double clusterTolerance = 0.02;
 int minSize = 100;
 int maxSize = 2500;
 

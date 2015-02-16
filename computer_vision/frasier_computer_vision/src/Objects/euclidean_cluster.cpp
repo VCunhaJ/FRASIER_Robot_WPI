@@ -1,7 +1,7 @@
 /*
  * Author(s): Vanderlei Cunha Jr., Kristina Walker
  * PARbot MQP
- * Created December 1, 2014
+ * Created February 11, 2014
  *
  * @node: euclidean_cluster_node
  * @Publisher: 
