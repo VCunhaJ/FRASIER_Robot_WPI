@@ -4,9 +4,7 @@
 #include<FRASIER/frasier_main.h>
 
 
-using namespace std;
-using namespace ros;
-using namespace pcl;
+
 
 #include <pcl/ModelCoefficients.h>
 #include <pcl/point_types.h>
@@ -18,6 +16,10 @@ using namespace pcl;
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/PointIndices.h>
+
+using namespace std;
+using namespace ros;
+using namespace pcl;
 
 /*Subscriber*/
 Subscriber subSegmentedObjects;
