@@ -41,7 +41,8 @@ long int clusterDisplay;
 /*Thresholds*/
 double clusterTolerance = 0.02;
 int minSize = 100;
-int maxSize = 2500;
+int maxSize = 7000;
 
+//Clustering Tolerance:
 
 #endif
