@@ -96,7 +96,7 @@ RANSACModel(segCloudPtr);
 
 
 //Convert from PointCloud class to PointCloud2 msg
-toROSMsg(*segCloudPtr, pc_data);
+pcl::toROSMsg(*segCloudPtr, pc_data);
 
 
 pub_seg.publish(pc_data);

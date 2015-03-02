@@ -70,10 +70,9 @@ regionGrowing.extract (numClusters);
 
 cerr << "Number of clusters is equal to " << numClusters.size ()<<endl;
 
-numClusters.clear();
 
 
-cerr << "First cluster has " << numClusters[0].indices.size () << " points." << endl;
+//cerr << "First cluster has " << numClusters[0].indices.size () << " points." << endl;
 //cout << "These are the indices of the points of the initial" <<
 //std::endl << "cloud that belong to the first cluster:" << std::endl;
  

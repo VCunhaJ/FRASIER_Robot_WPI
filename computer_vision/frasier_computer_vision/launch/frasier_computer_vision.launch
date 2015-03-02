@@ -27,9 +27,10 @@ Additional nodes represent t
   <node name="object_seg_node" pkg="frasier_computer_vision" type="object_seg_node" args="0" output="screen" />
   <node name="outlier_display_node" pkg="frasier_computer_vision" type="outlier_display_node" args="0" output="screen" />
   <node name="concave_hull_node" pkg="frasier_computer_vision" type="concave_hull_node" args="0" output="screen" />
-  <node name="euclidean_cluster_node" pkg="frasier_computer_vision" type="euclidean_cluster_node" args="0" output="screen" />  
+  
+  <node name="euclidean_cluster_node" pkg="frasier_computer_vision" type="euclidean_cluster_node" args="0" output="screen" /> 
+  
   <node name="region_growing_seg_node" pkg="frasier_computer_vision" type="region_growing_seg_node" args="0" output="screen" />
-    <node name="surface_reconstruction_node" pkg="frasier_computer_vision" type="surface_reconstruction_node" args="0" output="screen" />
 
  
   
