@@ -3,7 +3,9 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /PointCloud21
+        - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 748
   - Class: rviz/Selection
@@ -71,7 +73,7 @@ Visualization Manager:
       Size (Pixels): 2
       Size (m): 0.001
       Style: Points
-      Topic: /softkinetic_camera/depth/points
+      Topic: /FRASIER/Filters/RadiusConditionalFilter
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -155,6 +157,14 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /meow
+      Name: MarkerArray
+      Namespaces:
+        "   FRASIER_normal": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -179,7 +189,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.37547
+      Distance: 1.96116
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1

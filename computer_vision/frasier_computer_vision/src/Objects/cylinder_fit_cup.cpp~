@@ -1,0 +1,221 @@
+/*
+ * Author(s): Vanderlei Cunha Jr., Kristina Walker
+ * PARbot MQP
+ * Created March 22, 2015
+ *
+ * @node: cylinder_fit_cup_node
+ * @Publisher: 
+ * @Subscriber:
+ * @msg: sensor_msgs::PointCloud2
+ *
+ * @purpose: 
+ *
+ */
+ 
+#include<FRASIER/frasier_main.h>
+#include<FRASIER/Objects/cylinder_fit_cup.h>
+
+#include "visualization_msgs/MarkerArray.h"
+
+using namespace std;
+using namespace ros;
+using namespace pcl;
+
+ros::Publisher *normal_publisher;
+
+void NormalMarkerRviz(Eigen::Vector3d pt, Eigen::Vector3d normal, bool publish)
+{
+        static visualization_msgs::MarkerArray marker_array;
+        static int id = 0;
+        visualization_msgs::Marker marker_x;
+        
+        if (publish == true)
+        {
+                normal_publisher->publish(marker_array);
+                marker_array.markers.clear();
+                id = 0;
+                
+                return;
+        }
+        
+        marker_x.header.frame_id = "base";// THE FRAME ID;
+        marker_x.ns = "   FRASIER_normal";
+        marker_x.id = id++;
+        marker_x.type = visualization_msgs::Marker::LINE_STRIP;
+        marker_x.action = visualization_msgs::Marker::ADD;
+        marker_x.scale.x = 0.05;
+        marker_x.scale.y = 0.05;
+        marker_x.scale.z = 0.05;
+
+        marker_x.color.r = 1.0;
+        marker_x.color.g = marker_x.color.b = 0.0;
+        marker_x.color.a = 1.0;
+        marker_x.lifetime = ros::Duration(0);
+        
+        geometry_msgs::Point    p1, p2;
+        
+        marker_x.pose.orientation.w = 1.0;
+        marker_x.pose.orientation.x = marker_x.pose.orientation.y = marker_x.pose.orientation.z = 0.0;
+        marker_x.pose.position.x = marker_x.pose.position.y = marker_x.pose.position.z = 0.0;
+        
+        p1.x = pt[0];
+        p1.y = pt[1];
+        p1.z = pt[2];
+        
+        p2.x = -normal[0] + pt[0];
+        p2.y = -normal[1] + pt[1];
+        p2.z = -normal[2] + pt[2];
+        
+        marker_x.points.push_back(p1);
+        marker_x.points.push_back(p2);
+        
+        marker_array.markers.push_back(marker_x);
+}
+
+
+void CylinderFitCupCallback (const sensor_msgs::PointCloud2& objects){
+
+  cylinderPub.publish(objects); 
+
+  //Convert from PointCloud2 msg to PointCloud class object
+  pcl::fromROSMsg(objects, *objectPtr);
+  //ROS_INFO("PointCloud has: %lu", *objectPtr);
+  
+  //Number of Points in Cloud
+  //cerr<<"Point cloud data: "<<objectPtr->points.size() <<" points"<<endl;
+
+
+  // Estimate point normals
+  normalEstimation.setSearchMethod (tree);
+  normalEstimation.setInputCloud (objectPtr);
+  normalEstimation.setKSearch (kValue);
+  normalEstimation.compute (*cloud_normalsPtr);
+
+  cloud_filteredPtr = objectPtr;
+
+  // Create the segmentation object for the planar model and set all the parameters
+  seg.setOptimizeCoefficients (true);
+  seg.setModelType (SACMODEL_NORMAL_PLANE); // determines plane models of surface normals at each inlier point, has to be parallel to the surface normal of the output plane
+  seg.setMethodType (SAC_RANSAC); // RANdom SAmple Consensus 
+  seg.setMaxIterations (planeModelMaxIteration);
+  seg.setDistanceThreshold (planeModelDistThresh);
+  seg.setInputCloud (cloud_filteredPtr);
+  seg.setInputNormals (cloud_normalsPtr);
+  // Obtain the plane inliers and coefficients
+  seg.segment (*inliers_planePtr, *coefficients_planePtr);
+  //std::cerr << "Plane coefficients: " << *coefficients_planePtr << std::endl;
+  //ROS_INFO("Plane coeeficients: %lu", *coefficients_planePtr);         //print the coefficients
+
+  std::cout << "Cloud_filtered2Ptr size: " << cloud_filtered2Ptr->points.size() << std::endl;
+
+  // Extract the planar inliers from the input cloud
+  extract_pts_indices.setInputCloud (cloud_filteredPtr);
+  extract_pts_indices.setIndices (inliers_planePtr);
+  extract_pts_indices.setNegative (false);
+
+  // Write the planar inliers to disk
+  PointCloud<PointXYZ>::Ptr cloud_planePtr (new pcl::PointCloud<PointXYZ> ());
+  extract_pts_indices.filter (*cloud_planePtr);
+  //std::cerr << "PointCloud representing the planar component: " << cloud_planePtr->points.size () << " data points." << std::endl;
+  ROS_INFO("PointCloud representing the planar component: %lu data points", cloud_planePtr->points.size ());
+  //writer.write ("table_scene_mug_stereo_textured_plane.pcd", *cloud_planePtr, false);
+
+  // Remove the planar inliers, extract the rest
+  extract_pts_indices.setNegative (true);
+  extract_pts_indices.filter (*cloud_filtered2Ptr);
+  extract_normals_indices.setNegative (true);
+  extract_normals_indices.setInputCloud (cloud_normalsPtr);
+  extract_normals_indices.setIndices (inliers_planePtr);
+  extract_normals_indices.filter (*cloud_normals2Ptr);
+
+  std::cout << "Cloud_normals2Ptr size: " << cloud_normals2Ptr->points.size() << std::endl;
+  std::cout << "Cloud_filtered2Ptr size: " << cloud_filtered2Ptr->points.size() << std::endl;
+
+  // Create the segmentation object for cylinder segmentation and set all the parameters
+  seg.setOptimizeCoefficients (true);
+  seg.setModelType (SACMODEL_CYLINDER);
+  seg.setMethodType (SAC_RANSAC);
+  seg.setNormalDistanceWeight (normalDistWeight);
+  seg.setMaxIterations (segObjModelMaxIteration);
+  seg.setDistanceThreshold (segObjModelDistThresh);
+  seg.setRadiusLimits (0, 0.1);
+  seg.setInputCloud (cloud_filtered2Ptr);
+  seg.setInputNormals (cloud_normals2Ptr);
+
+  // Obtain the cylinder inliers and coefficients
+  seg.segment (*inliers_cylinderPtr, *coefficients_cylinderPtr);
+  //std::cerr << "Cylinder coefficients: " << *coefficients_cylinderPtr << std::endl;
+  //ROS_INFO("Cylinder coeeficients: %lu", *coefficients_cylinderPtr);
+
+  // Write the cylinder inliers to disk
+  extract_pts_indices.setInputCloud (cloud_filtered2Ptr);
+  extract_pts_indices.setIndices (inliers_cylinderPtr);
+  extract_pts_indices.setNegative (false);
+  PointCloud<PointXYZ>::Ptr cloud_cylinderPtr (new PointCloud<PointXYZ> ());
+  extract_pts_indices.filter (*cloud_cylinderPtr);
+  if (cloud_cylinderPtr->points.empty ()) 
+    std::cerr << "Can't find the cylindrical component." << std::endl;
+  else
+  {
+	  ROS_INFO("PointCloud representing the cylindrical component: %lu data points", cloud_cylinderPtr->points.size ());
+	  //std::cerr << "PointCloud representing the cylindrical component: " << cloud_cylinderPtr->points.size () << " data points." << std::endl;
+	  //writer.write ("table_scene_mug_stereo_textured_cylinder.pcd", *cloud_cylinderPtr, false);
+  }
+  
+  //cylinderPub.publish();
+
+}
+
+
+
+int main (int argc, char** argv){
+  ros::init(argc, argv, "cylinder_fit_cup_node");
+  ros::NodeHandle n;
+  
+  ros::Publisher FRASIER;
+
+  objectSub = n.subscribe("/FRASIER/Filters/RadiusConditionalFilter",1, &CylinderFitCupCallback);
+  cylinderPub = n.advertise<sensor_msgs::PointCloud2>("/FRASIER/Objects/CylinderFitCup",1);
+
+  FRASIER = n.advertise<visualization_msgs::MarkerArray>("/meow", 1, true);
+  normal_publisher = &FRASIER;
+
+  Eigen::Vector3d pt, normal_x, normal_y, normal_z;
+  
+  pt = Eigen::Vector3d(0, 0, 0);
+  normal_x = Eigen::Vector3d(1, 0, 0);  
+  normal_y = Eigen::Vector3d(0, 1, 0); 
+  normal_z = Eigen::Vector3d(0, 0, 1); 
+
+  NormalMarkerRviz(pt, normal_x, false);
+  NormalMarkerRviz(pt, normal_x, true);
+  //NormalMarkerRviz(pt, normal_y, false);
+  //NormalMarkerRviz(pt, normal_y, true);
+  //NormalMarkerRviz(pt, normal_z, true);
+  //NormalMarkerRviz(pt, normal_z, false);
+
+  Rate loopRate(10);
+
+  if(!n.ok())
+  {
+  n.shutdown();
+  }
+
+  while(n.ok()){
+    // spin();
+
+// This is how to draw the normal. Pt is the point from where the normal will be drawn. And the normal has the normal type. Just call them. First false and then true.
+// Both the normal and the pt are Eigen::Vector3d. 
+  NormalMarkerRviz(pt, normal_x, false);
+  NormalMarkerRviz(pt, normal_x, true); //red
+  NormalMarkerRviz(pt, normal_y, false);
+  NormalMarkerRviz(pt, normal_y, true);//green
+  //NormalMarkerRviz(pt, normal_z, false);
+  //NormalMarkerRviz(pt, normal_z, true);//blue
+  spinOnce();
+     loopRate.sleep();
+   }
+ 
+ 
+   return 0;
+}

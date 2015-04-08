@@ -57,7 +57,7 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  int clusterLength = clusterIndices.size();
     //cerr<<"Number of Clusters: "<<clusterLength<<endl;
 
-    ROS_INFO("Found %lu clusters:", clusterIndices.size());
+    //ROS_INFO("Found %lu clusters:", clusterIndices.size());
     
     //Empty Buffer
     clusterIndices.clear();
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
   ros::NodeHandle node;
 
   
-  subSegmentedObjects = node.subscribe("/FRASIER/Fixture/RadiusConditionalFilter",1, &EuclideanCallback);
+  subSegmentedObjects = node.subscribe("/FRASIER/Filters/RadiusConditionalFilter",1, &EuclideanCallback);
     
 
 Rate loopRate(10);

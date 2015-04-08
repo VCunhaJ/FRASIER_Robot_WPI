@@ -27,7 +27,7 @@ void PassFilterCallBack(const sensor_msgs::PointCloud2 &rawcloud)
 fromROSMsg(rawcloud, *notFilteredCloudPtr);
 
 //Test
-cerr<< "Total CLOUD RAW: " << notFilteredCloudPtr->points.size()<<endl;
+//cerr<< "Total CLOUD RAW: " << notFilteredCloudPtr->points.size()<<endl;
 
 filterCloud.setInputCloud(notFilteredCloudPtr);
 filterCloud.setFilterFieldName("z");
