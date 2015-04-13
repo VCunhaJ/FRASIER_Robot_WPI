@@ -1,0 +1,30 @@
+#Motor controller initialization/communication parameters
+port: /dev/robot/RoboteqController
+timeout: 0.02 
+sendAttempts: 100
+onConnect: ["!VAR 0 1", "!G 1 0", "!G 2 0", 0.06]
+
+#Stiff PID:
+#onConnect: ["!VAR 0 1", "!G 1 0", "!G 2 0", "^KP 1 20", "^KP 2 20", "^KI 1 30", "^KI 2 30", "^KD 1 200", "^KD 2 200", "^MAC 1 50000", "^MAC 2 50000", "^MDEC 1 50000", "^MDEC 2 50000", 0.06]
+
+#VAR variable number, value || this command is used to set the value of user variables #that can be read by a MicroBasic script page 171 of the Advanced Digital Motor #Controllers User Manual
+#G motor channel value || turns on/off the motor(s) page 168
+#KP KI KD encoder value || sets the values of all the konstants page 219
+#MAC motor channel value || sets the motor acceleration value page 219
+#MDEC motor channel value || Sets the value for deceleration page 220
+
+
+
+#Soft PID:
+#onConnect: ["!VAR 0 1", "!G 1 0", "!G 2 0", "^KP 1 8", "^KP 2 8", "^KI 1 10", "^KI 2 10", "^KD 1 100", "^KD 2 100", "^MAC 1 5000", "^MAC 2 5000", "^MDEC 1 5000", "^MDEC 2 5000", 0.06]
+
+#portCfg: {}
+
+fwdKnmtx: [[0.133 0.133],[-0.0437 0.0437]]
+#invKnmtx: [[], []]
+
+#rpmPubPeriod: 0.1
+odomPubPeriod: 0.05
+batteryPubPeriod: 5.0
+#baseFrame: my_base_link
+#odomFrame: my_odom

@@ -1,0 +1,7 @@
+/bin
+/build
+*.cproject
+*.project
+*.pydevproject
+/CMakeFiles
+/src/manzanita_mk3_driver

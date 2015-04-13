@@ -1,0 +1,56 @@
+/*
+Author: Jeffrey Orszulak
+ */
+
+//ROS Includes
+#include "ros/ros.h" //ros
+#include "nav_msgs/Path.h"
+#include "geometry_msgs/Point.h"
+
+#include <stdlib.h>
+#include <iostream> // cout
+#include <string> //std::string
+
+//using namespace std;
+
+int main(int argc, char **argv)
+{
+    //Start ROS
+    ros::init(argc, argv, "PARbot_Target_Simulator_node");
+    ros::NodeHandle n;
+
+    //Create Publisher
+    ros::Publisher parbotTarget_pub = n.advertise<geometry_msgs::PoseStamped>("Tracking/object_position", 1);
+    ros::Rate loop_rate(1); //try to publish at 1 Hz
+
+    //Pose to Publish
+    geometry_msgs::PoseStamped targetPose;
+
+    //Set Header
+    std::string frame ("/map");
+    targetPose.header.frame_id = frame;
+
+    targetPose.pose.position.x = 1.194;
+    targetPose.pose.position.y = 0.006;
+    targetPose.pose.position.z = -0.135;
+
+    //Empty Orientation
+    targetPose.pose.orientation.x = 0;
+    targetPose.pose.orientation.y = 0;
+    targetPose.pose.orientation.z = 0;
+    targetPose.pose.orientation.w = 0;
+
+    // Loop and publish
+    while (ros::ok())
+    //int numPublish = 5; // number of times to try to publish --> don't need to keep publishing forever
+    //for (int i = 0; i < numPublish; ++i)
+    {
+        //Publish
+        parbotTarget_pub.publish(targetPose); //publish to topic parbotPath
+        //cout <<"TargetPose x = " << targetPose.pose.position.x << " , targetPose y = " << targetPose.pose.position.y << "\n";
+        ros::spinOnce();
+        loop_rate.sleep(); //wait if publish frequency is too fast
+    }
+
+    return 0;
+}

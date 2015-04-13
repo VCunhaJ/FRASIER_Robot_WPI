@@ -1,0 +1,22 @@
+<!--Olivia Hugal
+    Jeffrey Orszulak
+    Last Revised: 2/12/2014
+-->
+
+<launch>
+
+<!-- run map_server with rbe3002test.yaml
+<node name="map_server" pkg="map_server" type="map_server" args="/home/ros_workspace/src/parbot_pathplanning/rbe3002test.yaml" >-->
+
+<node pkg="map_server" type="map_server" name="map_server" args="$(find parbot_pathplanning)/parbot1-test-small.yaml">
+<remap from="/map" to="/map_init"/>
+</node>
+
+<node pkg="parbot_pathplanning" type="PARbot_dijkstra_on_occupancy_grid.py" name="occupancy_grid" />
+
+<!-- <node pkg="parbot_pathplanning" type="PARbot_dijkstra_return_path.py" name="return_path" /> -->
+
+<!-- <node pkg="parbot_pathplanning" type="PARbot_drive_path.py" name="drive_path" /> -->
+
+
+</launch>

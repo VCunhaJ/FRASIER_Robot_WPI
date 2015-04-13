@@ -1,0 +1,21 @@
+#ifndef LASERSCAN_HANDLER_H
+#define LASERSCAN_HANDLER_H
+
+#include "stdafx.h"
+#include <vector>
+#include "motion_planning_structures.h"
+#include "motion_planning_defs.h"
+
+class lasescan_handler{
+public:
+	lasescan_handler(std::string topic_name=SCAN_TOPIC /* add ros node handle */);
+
+	bool message_received;
+	std::vector<grid_cart_point> scan_points;
+	/*listener*/
+
+	void callback(/*laserscan_msgs here*/);
+	std::vector<grid_cart_point> get_scan_points();
+};
+
+#endif

@@ -1,0 +1,21 @@
+
+[INFO] [WallTime: 1391447000.038752] [1322.440000] Path: [
+(3.0000000447034836, 1.0000000149011612), 
+(3.0000000447034836, 1.2000000178813934), 
+(3.0000000447034836, 1.4000000208616257), 
+(3.0000000447034836, 1.600000023841858), 
+(3.0000000447034836, 1.8000000268220901), 
+(3.0000000447034836, 2.0000000298023224)]
+
+
+Commands:  [
+<__main__.TurnCommand instance at 0x1f9b7a0>, 
+<__main__.DriveCommand instance at 0x1f9b7e8>, 
+<__main__.TurnCommand instance at 0x1f9b830>, 
+<__main__.DriveCommand instance at 0x1f9b878>, 
+<__main__.TurnCommand instance at 0x1f9b8c0>, 
+<__main__.DriveCommand instance at 0x1f9b908>, 
+<__main__.TurnCommand instance at 0x1f9b950>, 
+<__main__.DriveCommand instance at 0x1f9b998>, 
+<__main__.TurnCommand instance at 0x1f9b9e0>, 
+<__main__.DriveCommand instance at 0x1f9ba28>]

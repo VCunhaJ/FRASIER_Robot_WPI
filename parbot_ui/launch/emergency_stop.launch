@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+    <node pkg="parbot_ui" type="estop_node" name="ESTOP_Node"/>
+</launch>

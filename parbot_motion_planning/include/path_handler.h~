@@ -1,0 +1,42 @@
+#ifndef PATH_HANDLER_H
+#define PATH_HANDLER_H
+
+#include <string>
+#include <vector>
+#include "motion_planning_structures.h"
+#include "tentacle.h"
+#include "velocity_set.h"
+#include "ros/ros.h"
+#include "nav_msgs/Path.h"
+
+#define NUM_TO_FIND 5
+
+class path_handler
+{
+public:
+	path_handler(ros::NodeHandle n, double _goal_distance=GOAL_DISTANCE,
+	 std::string path_topic=PATH_TOPIC);
+
+	std::vector<cart_point> robot_path;
+	double goal_distance;
+	tentacle* find_best(std::vector<velocity_set*> velocities);
+    tentacle* find_best(std::vector<velocity_set*> velocities, std::vector<cost_grid_point> cost_grid);
+    tentacle* find_best(std::vector<velocity_set*> velocities, cost_mapper mapper);
+    ros::Subscriber path_sub;
+    std::vector<tentacle*> find_best(std::vector<velocity_set*> velocities, int num_to_find);
+	bool goal_reached();
+	bool path_ready();
+	bool message_received;
+private:
+	void callback(const nav_msgs::PathConstPtr& path_msg);
+	double dist_to_end();
+	int indexOfClosest(std::vector<cart_point> points);
+	double distToPoint(cart_point point);
+	std::vector<cart_point> get_after_index(std::vector<cart_point> points,
+		int index);
+    tentacle* find_worst(std::vector<tentacle*> tents);
+    std::vector<tentacle*> replace(tentacle* tent_a, tentacle* tent_b,
+        std::vector<tentacle*> tents);
+};
+
+#endif

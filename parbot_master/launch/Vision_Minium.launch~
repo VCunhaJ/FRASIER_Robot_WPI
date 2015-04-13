@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch> 
+	<include file="$(find parbot_depthimage_to_laserscan)/launch/parbot_vision.launch" />
+	<include file="$(find parbot_tfs)/launch/parbot_tfs.launch" />
+	<include file="$(find parbot_motor_control)/launch/motor_control.launch" />
+	<!--<include file="$(find visp_auto_tracker)/launch/parbot_webcam_testing.launch" />-->
+</launch>

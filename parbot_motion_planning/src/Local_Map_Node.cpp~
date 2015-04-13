@@ -1,0 +1,60 @@
+#include "Map_Shrinker.h"
+
+#define MAP_SUB "map"
+#define MAP_PUB "local_map"
+#define MAP_RATE 5
+
+class Local_Map_Node{
+public:
+    Local_Map_Node(ros::NodeHandle n)
+    {
+        mp = new Map_Shrinker();
+        map_sub = n.subscribe(std::string(MAP_SUB), 1, &Local_Map_Node::mapCallback, this);
+        map_pub = n.advertise<nav_msgs::OccupancyGrid>(std::string(MAP_PUB), 1);
+        has_map = false;
+
+        ros::Rate loop_rate(MAP_RATE);
+
+        while(ros::ok())
+        {
+            if(has_map)
+                break;
+		ros::spinOnce();
+            loop_rate.sleep();
+        }
+        while(ros::ok())
+        {
+            local_map = mp->shrink_map(map);
+            map_pub.publish(local_map);
+            ros::spinOnce();
+            loop_rate.sleep();
+        }
+    };
+
+private:
+    ros::Subscriber map_sub;
+    ros::Publisher map_pub;
+    nav_msgs::OccupancyGrid local_map;
+    nav_msgs::OccupancyGrid map;
+    Map_Shrinker* mp;
+    bool has_map;
+
+    void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
+    {
+        map.info = msg->info;
+        map.data = msg->data;
+        map.header = msg->header;
+        local_map = mp->shrink_map(map);
+        map_pub.publish(local_map);
+        if(!has_map)
+            has_map = true;
+    }
+};
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "Local_Map_Node");
+    ros::NodeHandle n;
+    Local_Map_Node* lmn = new Local_Map_Node(n);
+    return 0;
+}

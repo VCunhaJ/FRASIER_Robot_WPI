@@ -1,0 +1,18 @@
+#ifndef FRASIER_TELEOP_H_ 
+#define FRASIER_TELEOP_H_ 
+
+#include <ros/ros.h>
+#include <roboteq_driver/RoboteqGroupMotorControl.h>
+#include <sensor_msgs/Joy.h>
+
+using namespace std;
+using namespace ros;
+
+int main(int argc, char** argv)
+{
+init (argc, argv, "frasier_teleop_node");
+
+spin();
+}
+
+#endif

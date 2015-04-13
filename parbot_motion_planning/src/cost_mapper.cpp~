@@ -1,0 +1,384 @@
+#include "cost_mapper.h"
+
+cost_mapper::cost_mapper(double _c_max, double _r_max, double _grid_size)
+{
+    grid_size = _grid_size;
+    cost = _c_max;
+    radius = _r_max;
+    cfp = new cost_footprint(cost, radius, grid_size);
+	cfp->print_footprint();
+    //cfp->print_footprint();
+};
+
+void cost_mapper::update_cost_map(std::vector<grid_cart_point> object_points)
+{
+    make_cost_grid(object_points);
+}
+
+void cost_mapper::update_cost_map(std::vector<grid_cart_point> object_points, double size)
+{
+	ros::Time begin,end;
+	double elapsed;
+	int grid_d = round(size*2/grid_size);
+	//cost_grid_offset_x = -1*size*grid_size;
+    //cost_grid_offset_y = -1*size*grid_size;
+    init_grid(grid_d, grid_d);
+	std::vector<std::vector<cost_grid_point> > raw_points =
+     std::vector<std::vector<cost_grid_point> >(object_points.size(),
+        std::vector<cost_grid_point>(0));
+	//begin = ros::Time::now();
+	for(int i=0; i<object_points.size(); i++)
+    {
+        raw_points[i] = cfp->points_from_point(object_points[i]);
+	}
+ 	/*end = ros::Time::now();
+    elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    ROS_INFO("expanding points took %f seconds", elapsed);
+	begin = ros::Time::now();
+	*/
+    for(int i=0; i<raw_points.size(); i++)
+    {
+        for(int j=0; j<raw_points[i].size(); j++)
+        {
+            add_to_grid(raw_points[i][j]);
+        }
+    }
+    /*end = ros::Time::now();
+    elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    ROS_INFO("adding points to the grid took %f seconds", elapsed);
+	*/
+}
+
+void cost_mapper::update_cost_map(Map_Data* md)
+{
+    ros::Time begin = ros::Time::now();
+    make_cost_grid(md);
+    ros::Time end = ros::Time::now();
+    double elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    //ROS_INFO("Updating Cost map took %f s", elapsed);
+}
+
+std::vector<cost_grid_point> cost_mapper::get_cost_map()
+{
+    return cost_map;
+}
+
+void cost_mapper::make_cost_grid(std::vector<grid_cart_point> points, cost_footprint* fp)
+{
+    int max_x = 0;
+    int max_y = 0;
+    int min_x = 0;
+    int min_y = 0;
+    std::vector<std::vector<cost_grid_point> > raw_points =
+     std::vector<std::vector<cost_grid_point> >(points.size(),
+        std::vector<cost_grid_point>(0));
+    //ROS_INFO("about to check extents");
+    ros::Time begin = ros::Time::now();
+    for(int i=0; i<points.size(); i++)
+    {
+        raw_points[i] = fp->points_from_point(points[i]);
+        for(int j=0; j<raw_points[i].size(); j++)
+        {
+            if(raw_points[i][j].point.x > max_x)
+            {
+                max_x = raw_points[i][j].point.x;
+            }
+            else if(raw_points[i][j].point.x < min_x)
+            {
+                min_x = raw_points[i][j].point.x;
+            }
+
+            if(raw_points[i][j].point.y > max_y)
+            {
+                max_y = raw_points[i][j].point.y;
+            }
+            else if(raw_points[i][j].point.y < min_y)
+            {
+                min_y = raw_points[i][j].point.y;
+            }
+        }
+    }
+    ros::Time end = ros::Time::now();
+    double elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    ROS_INFO("sizing grid took %f seconds", elapsed);
+    int grid_x = 1 + max_x - min_x;
+    int grid_y = 1 + max_y - min_y;
+    cost_grid_offset_x = min_x;
+    cost_grid_offset_y = min_y;
+    //init_map(grid_x, grid_y);
+    init_grid(grid_x, grid_y);
+    //TODO: -> transform grid to allign with original
+    begin = ros::Time::now();
+    for(int i=0; i<raw_points.size(); i++)
+    {
+        for(int j=0; j<raw_points[i].size(); j++)
+        {
+            add_to_grid(raw_points[i][j]);
+        }
+    }
+    end = ros::Time::now();
+    elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    ROS_INFO("adding points to the grid took %f seconds", elapsed);
+    //ROS_INFO("finshed adding to grid");
+    //print_cost_grid();
+}
+
+void cost_mapper::add_to_grid(cost_grid_point point)
+{
+    int x,y;
+    x = point.point.x - cost_grid_offset_x;
+    y = point.point.y - cost_grid_offset_y;
+
+    //ROS_INFO("Point at %d,%d", x,y);
+
+    if(cost_grid.empty() || x < 0 || y < 0 || x >= cost_grid.size() || y >= cost_grid[x].size() )
+        return;
+
+    cost_grid[x][y] += point.cost;
+}
+
+void cost_mapper::make_cost_grid(std::vector<grid_cart_point> points)
+{
+    return make_cost_grid(points, cfp);
+}
+
+double cost_mapper::lookup_point(cart_point c_point)
+{
+    grid_cart_point point = cart_to_grid(c_point);
+    int x,y;
+    x = point.x - cost_grid_offset_x;
+    y = point.y - cost_grid_offset_y;
+
+    if(cost_grid.empty() || x < 0 || y < 0 || x >= cost_grid.size() || y >= cost_grid[x].size() )
+        return 0;
+
+    return cost_grid[x][y];
+}
+
+double cost_mapper::score_path(std::vector<cart_point> robot_path)
+{
+    long double total = 0;
+    for(int i=0; i<robot_path.size(); i++)
+    {
+        total += lookup_point(robot_path[i]);
+    }
+    //ROS_INFO("Total = %f", total);
+    return (total/(double)robot_path.size());
+}
+
+void cost_mapper::print_cost_grid()
+{
+    for(int i=0; i<cost_grid.size(); i++)
+    {
+        for(int j=0; j<cost_grid[i].size(); j++)
+        {
+            if(cost_grid[i][j] != 0)
+                std::cout << j+cost_grid_offset_y << "," <<  i+cost_grid_offset_x/*<<  "," << cost_grid[i][j] */
+                << "\n";
+        }
+    }
+}
+
+void cost_mapper::print_cost_grid(std::vector<grid_cart_point> obstacle_points)
+{
+    int index = 0;
+    for(int i=0; i<cost_grid.size(); i++)
+    {
+        for(int j=0; j<cost_grid[i].size(); j++)
+        {
+
+            if(cost_grid[i][j] != 0)
+            {
+                grid_cart_point point;
+                point.x = i + cost_grid_offset_x;
+                point.y = j + cost_grid_offset_y;
+                print_cart_point_inline(grid_to_cart(point));
+                print_cart_point_endline(grid_to_cart(obstacle_points[index]));
+                if(index < obstacle_points.size()-1)
+                    index++;
+            }
+        }
+    }
+}
+
+void cost_mapper::print_cost_grid(std::vector<grid_cart_point> obstacle_points, std::vector<cart_point> path_points)
+{
+    int index = 0;
+    int path_index = 0;
+    for(int i=0; i<cost_grid.size(); i++)
+    {
+        for(int j=0; j<cost_grid[i].size(); j++)
+        {
+			grid_cart_point point;
+            if(cost_grid[i][j] != 0)
+            {
+                point.x = i + cost_grid_offset_x;
+                point.y = j + cost_grid_offset_y;
+            /*}
+			else
+			{
+				point.x = 0;
+                point.y = 0;
+
+			}
+			*/
+			print_cart_point_inline(grid_to_cart(point));
+            print_cart_point_inline(grid_to_cart(obstacle_points[index]));
+            if(index < obstacle_points.size()-1)
+                index++;
+            print_cart_point_endline(path_points[path_index]);
+            if(path_index < path_points.size()-1)
+                path_index++;
+			}
+        }
+    }
+}
+
+parbot_motion_planning::cost_map cost_mapper::get_map()
+{
+    init_map();
+    double x_off = grid_size*cost_grid_offset_x;
+    double y_off = grid_size*cost_grid_offset_y;
+    parbot_motion_planning::cost_point tmp_point;
+    tmp_point.point.x = x_off;
+    tmp_point.point.y = y_off;
+    for(int y=0; y<cost_grid[0].size(); y++)
+    {
+		tmp_point.point.x = x_off;
+        for(int x=0; x<cost_grid.size(); x++)
+        {
+            parbot_motion_planning::cost_point point;
+            point.point.x = tmp_point.point.x;
+            point.point.y = tmp_point.point.y;
+            point.cost = cost_grid[x][y];
+            map.grid[map.row_length*y+x] = point;
+			tmp_point.point.x += grid_size;
+        }
+		tmp_point.point.y += grid_size;
+    }
+    return map;
+}
+
+parbot_motion_planning::cost_map_2 cost_mapper::get_map_2()
+{
+    init_map_2();
+    for(int x=0; x<cost_grid.size(); x++)
+    {
+	parbot_motion_planning::Column new_column;
+	new_column.row = cost_grid[x];		
+	map_2.column[x] = new_column;
+    }
+	//csv_print();
+    return map_2;
+}
+
+void cost_mapper::make_cost_grid(Map_Data* md)
+{
+    ros::Time begin = ros::Time::now();
+    int extra = 0;//round(2*radius/md->get_grid_size());
+    //ROS_INFO("extra %d, radius %f, grid_size %f", extra, radius, md->get_grid_size());
+    int x = md->get_x_dimension()+extra;
+    int y = md->get_y_dimension()+extra;
+    init_grid(x,y);
+	//ROS_INFO("x %d, y %d", x, y);
+    init_grid(md->get_occ_grid());
+    ros::Time end = ros::Time::now();
+    double elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    //ROS_INFO("init_map took %f s", elapsed);
+    //ROS_INFO("Made grid of %d by %d adding %d to original", x, y, extra);
+    begin = ros::Time::now();
+    add_points_to_grid(md->get_points());
+    end = ros::Time::now();
+    elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+   //ROS_INFO("adding points took %f s", elapsed);
+}
+
+void cost_mapper::init_map()
+{
+    map.grid_size = grid_size;
+    map.row_length = cost_grid.size();
+    map.num_rows = cost_grid[0].size();
+    map.x_offset = cost_grid_offset_x;
+    map.y_offset = cost_grid_offset_y;
+    map.grid = map.grid = std::vector<parbot_motion_planning::cost_point>(cost_grid.size()*cost_grid[0].size());
+}
+
+void cost_mapper::init_map_2()
+{
+    map_2.grid_size = grid_size;
+    map_2.row_length = cost_grid.size();
+    map_2.num_rows = cost_grid[0].size();
+    map_2.x_offset = cost_grid_offset_x;
+    map_2.y_offset = cost_grid_offset_y;
+    map_2.column = std::vector<parbot_motion_planning::Column>(cost_grid.size());
+}
+
+void cost_mapper::init_grid(int x, int y)
+{
+    cost_grid = std::vector<std::vector<double> >(
+        x, std::vector<double>(y));
+    cost_grid_offset_x = x/-2;
+    cost_grid_offset_y = y/-2;
+    //ROS_INFO("grid %dX%d offsets x %d y %d", x, y, cost_grid_offset_x, cost_grid_offset_y);
+}
+
+std::vector<std::vector<cost_grid_point> > cost_mapper::make_cost_points(std::vector<grid_cart_point> grid_points)
+{
+    std::vector<std::vector<cost_grid_point> > cost_points =
+        std::vector<std::vector<cost_grid_point> >(grid_points.size(),
+        std::vector<cost_grid_point>(0));
+    for(int i=0; i<cost_points.size(); i++)
+    {
+        cost_points[i] = cfp->points_from_point(grid_points[i]);
+    }
+    //ROS_INFO("made cost points for %d points", (int)grid_points.size());
+    return cost_points;
+}
+
+void cost_mapper::add_points_to_grid(std::vector<grid_cart_point> points)
+{
+    add_points_to_grid(make_cost_points(points));
+}
+
+void cost_mapper::add_points_to_grid(std::vector<std::vector<cost_grid_point> > cost_points)
+{
+    for(int i=0; i<cost_points.size(); i++)
+    {
+        //ROS_INFO("adding points for point %d of %d", i+1, (int)cost_points.size());
+        for(int j=0; j<cost_points[i].size(); j++)
+        {
+            //ROS_INFO("Adding point %d of %d", j, (int)cost_points[i].size());
+            add_to_grid(cost_points[i][j]);
+        }
+    }
+}
+
+void cost_mapper::init_grid(std::vector<std::vector<double> > grid)
+{
+    cost_grid = grid;
+}
+
+void cost_mapper::csv_print()
+{
+	int last_x, last_y;
+	last_x =0;
+	last_y = 0;
+	for(int y=0; y<cost_grid[0].size(); y++)
+	{
+		for(int x=0; x<cost_grid.size(); x++)
+		{
+			std::cout << y << "," << x;
+			if(cost_grid[x][y] == 0)
+			{
+				std::cout <<  "," << last_y << "," << last_x << "\n";
+			}
+			else
+			{
+				std::cout << "," << y << "," << x << "\n";//"," << cost_grid[x][y];
+				last_x = x;
+				last_y = y;
+			}
+			
+		}
+	}
+}

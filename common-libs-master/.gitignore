@@ -1,0 +1,50 @@
+#Back files
+*.*~
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+#python
+*.pyc
+
+#Stuff built by rosmake
+*/build
+*/bin
+*/lib/*.so
+*/msg_gen
+*/catkin
+*/catkin_generated
+*/cmake_install.cmake
+*/CATKIN_IGNORE
+*/CMakeFiles
+*/devel
+*/gtest
+*/srv_gen
+
+#Stuff added by make eclipse-project
+*.project
+*.pydevproject
+*.cproject
+
+#Dynamic Reconfigure files
+*.cfgc
+
+/device_driver_base/src/device_driver_base
+/device_driver_base/msg/SetJointPosition*
+/device_driver_base/msg/SetMotorPosition*
+
+/manzanita_mk3_driver/cfg/cpp
+/manzanita_mk3_driver/docs
+
+/robot_base_msgs/src/robot_base_msgs

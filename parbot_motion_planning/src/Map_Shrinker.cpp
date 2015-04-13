@@ -1,0 +1,172 @@
+#include "Map_Shrinker.h"
+
+Map_Shrinker::Map_Shrinker(double _threshold, double _box_size, std::string _target_frame)
+{
+    box_size = _box_size;
+    target_frame = _target_frame;
+    threshold = _threshold;
+    grid_size = 0;
+    x_offset = 0;
+    y_offset = 0;
+};
+
+std::vector<parbot_motion_planning::CostPointStamped> Map_Shrinker::convert_occupancy_grid(nav_msgs::OccupancyGrid grid)
+{
+    int obstacles = 0; // number of nodes in this iteration of y
+    float res = grid.info.resolution; //meters per cell
+    float width = grid.info.width;
+    float height = grid.info.height;
+    std::vector<parbot_motion_planning::CostPointStamped> all_obstacles = std::vector<parbot_motion_planning::CostPointStamped>(width*height);
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int current_data = ((y*width) + x); //may need to cast to int
+            if ((grid.data[current_data] >= threshold) && (grid.data[current_data] != -1))
+            {
+                parbot_motion_planning::CostPointStamped point;
+                point.point.point.x = (res*x - (res*width/2));
+                point.point.point.y = (res*y - (res*height/2));
+                point.cost=grid.data[current_data];
+                point.header = grid.header;
+                point.point.header = grid.header;
+
+                all_obstacles[obstacles] = point;
+                obstacles++; //increase number o  in this row
+            }
+        }
+    }
+    all_obstacles.resize(obstacles);
+    return all_obstacles;
+}
+
+parbot_motion_planning::CostPointStamped Map_Shrinker::transform_point(parbot_motion_planning::CostPointStamped point)
+{
+    geometry_msgs::PointStamped new_point;
+    try
+    {
+        tf_listener.transformPoint(target_frame, point.point, new_point);
+    }
+    catch (tf::TransformException ex)
+    {
+        ROS_INFO("TF_ERROR:%s",ex.what());
+    }
+    point.point = new_point;
+    point.header = new_point.header;
+    return point;
+}
+
+std::vector<parbot_motion_planning::CostPointStamped> Map_Shrinker::transform_points(std::vector<parbot_motion_planning::CostPointStamped> points)
+{
+    for(int i=0; i<points.size(); i++)
+    {
+        parbot_motion_planning::CostPointStamped tf_point = transform_point(points[i]);
+        points[i] = tf_point;
+    }
+    return points;
+}
+
+std::vector<parbot_motion_planning::CostPointStamped> Map_Shrinker::get_close_points(std::vector<parbot_motion_planning::CostPointStamped> all_points)
+{
+    std::vector<parbot_motion_planning::CostPointStamped> close_points = std::vector<parbot_motion_planning::CostPointStamped>(all_points.size());
+    int num_close = 0;
+    for(int i=0; i<all_points.size(); i++)
+    {
+        parbot_motion_planning::CostPointStamped current_point = all_points[i];
+        if(fabs(current_point.point.point.x) < box_size/2 && fabs(current_point.point.point.y) < box_size/2)
+        {
+            close_points[num_close] = current_point;
+            num_close++;
+        }
+    }
+    close_points.resize(num_close);
+    return close_points;
+}
+
+std::vector<parbot_motion_planning::CostPointStamped> Map_Shrinker::get_close_tfd_points(nav_msgs::OccupancyGrid map_msg)
+{
+    std::vector<parbot_motion_planning::CostPointStamped> obstacles = convert_occupancy_grid(map_msg);
+    obstacles = transform_points(obstacles);
+    obstacles = get_close_points(obstacles);
+    return obstacles;
+}
+
+void Map_Shrinker::setup_map_msg(nav_msgs::OccupancyGrid old_msg)
+{
+    shrunk_map = old_msg;
+    shrunk_map.header.frame_id = target_frame;
+    grid_size = shrunk_map.info.resolution;
+    double grid_dimensions = round(box_size/grid_size);
+    shrunk_map.info.width = grid_dimensions;
+    shrunk_map.info.height = grid_dimensions;
+    shrunk_map.data.resize(pow(grid_dimensions,2));
+    shrunk_map.info.origin.position.x = -0.5*grid_dimensions*grid_size;
+    shrunk_map.info.origin.position.y = -0.5*grid_dimensions*grid_size;
+    for(int i=0; i<shrunk_map.data.size(); i++)
+    {
+        shrunk_map.data[i] = -1;//0;
+    }
+    x_offset = round(shrunk_map.info.origin.position.x/grid_size);
+    y_offset = round(shrunk_map.info.origin.position.y/grid_size);
+}
+
+void Map_Shrinker::add_to_map(parbot_motion_planning::CostPointStamped point)
+{
+    int x,y;
+    x = round(point.point.point.x/grid_size) - x_offset;
+    y = round(point.point.point.y/grid_size) - y_offset;
+    if(x < 0 || x > shrunk_map.info.width || y < 0 || y > shrunk_map.info.height)
+        return;
+    shrunk_map.data[shrunk_map.info.width*y+x] = point.cost;
+}
+
+void Map_Shrinker::add_to_map(std::vector<parbot_motion_planning::CostPointStamped> points)
+{
+    for(int i=0; i<points.size(); i++)
+    {
+        add_to_map(points[i]);
+    }
+}
+
+void Map_Shrinker::make_map_msg(nav_msgs::OccupancyGrid old_msg)
+{
+    std::vector<parbot_motion_planning::CostPointStamped> occupied_points = get_close_tfd_points(old_msg);
+    setup_map_msg(old_msg);
+    add_to_map(occupied_points);
+}
+
+nav_msgs::OccupancyGrid Map_Shrinker::shrink_map(nav_msgs::OccupancyGrid map_msg)
+{
+    make_map_msg(map_msg);
+    return shrunk_map;
+}
+
+nav_msgs::OccupancyGrid Map_Shrinker::get_shrunk_map()
+{
+    return shrunk_map;
+}
+
+cart_point Map_Shrinker::CPS_to_cart(parbot_motion_planning::CostPointStamped point)
+{
+    cart_point cPoint;
+    cPoint.x = point.point.point.x;
+    cPoint.y = point.point.point.y;
+    return cPoint;
+}
+
+std::vector<cart_point> Map_Shrinker::CPS_to_cart(std::vector<parbot_motion_planning::CostPointStamped
+        > points)
+{
+    std::vector<cart_point> cPoints = std::vector<cart_point>(points.size());
+    for(int i=0; i<cPoints.size(); i++)
+    {
+        cPoints[i] = CPS_to_cart(points[i]);
+    }
+    return cPoints;
+}
+
+std::vector<cart_point> Map_Shrinker::get_cart_points(nav_msgs::OccupancyGrid map_msg)
+{
+    return CPS_to_cart(get_close_tfd_points(map_msg));
+}
