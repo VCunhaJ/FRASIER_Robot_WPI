@@ -1,13 +1,13 @@
-#ifndef FRASIER_TELEOP_H_ 
-#define FRASIER_TELEOP_H_ 
+#ifndef FRASIER_TELEOP_MAIN_H_ 
+#define FRASIER_TELEOP_MAIN_H_ 
 
-#include <strings>
 #include <vector>
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
-#include <sensor_msgs/Twist.h>
+#include <geometry_msgs/Twist.h>
 #include <roboteq_driver/RoboteqGroupMotorControl.h>
 #include <roboteq_mc_nxtgen_driver/RPM.h>
+#include <frasier_ui/UI_Command_Handler.h>
 
 using namespace std;
 using namespace ros;
@@ -20,6 +20,7 @@ using namespace ros;
 #define max_turn 1.0
 #define max_joy 1.0
 
+#define CMD_SUB "UI/Teleop"
 
 
 class TeleopFrasier
@@ -29,6 +30,7 @@ public:
 	* Constructor
 	*/
 	TeleopFrasier();
+    void PublishMessages();
 
 private:
 	NodeHandle n;
@@ -36,15 +38,18 @@ private:
 	Publisher velocity_pub;
 	Subscriber joy_sub;
 	roboteq_mc_nxtgen_driver::RPM rpm_msg;
-	geometry_msg::Twist twist_msg;
-
-
- 
-
-
+	geometry_msgs::Twist twist_msg;
+	UI_Command_Handler* UCH; //Handler Pointer object
 
 
 	void joyCallBack(const sensor_msgs::Joy::ConstPtr& joyPtr);
+	/**
+	*\brief Callback for the joystick controller
+	*@param joyPtr from 
+	*/
+	float Scale(float in, float max_in, float max_out);
+
+	float WithinRange(float in, float max);
 
 };
 
