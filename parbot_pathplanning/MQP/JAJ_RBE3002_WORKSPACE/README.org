@@ -1,0 +1,88 @@
+
+* Running
+To run the code for project:
+1. Connect to robot or start gazebo
+   - For robot:
+     $ robot maria
+   - For Gazebo:
+     $ roslaunch simmapfinal3002 simmap.launch
+2. Start all of the nodes
+  $ roslaunch JAJ_final final.launch
+  $ rosrun JAJ_localization particle_filter.py
+  $ rosrun JAJ_navigation follow_path.py
+3. Tell the robot where it is in rviz
+   1. Click "2D Pose Estimate"
+   2. Click where the robot is on the map
+   3. Drag in the correct orientation
+   4. Release
+4. Tell the robot where to go
+   1. Click "2D Nav Goal"
+   2. Click where the robot should go on the map
+   3. Release
+5. Watch it think and go
+6. Kidnap as desired
+
+* Packages
+There are four main packages that are needed for this project:
+- simmapfinal3002: Provides the map png and support for simulation in
+  gazebo.
+- JAJ_final: Contains a launch file to run everything.
+- JAJ_localization: Contains code for robot localization,
+  a.k.a. figuring out where the robot is.
+- JAJ_navigation: Contains code for robot navigation,
+  a.k.a. making the robot go where it wants to.
+
+** simmapfinal3002
+Nothing to really see here, just some maps including a highres, lowres
+and c-space map.
+
+** JAJ_final
+Just the launch file to launch the entire project.
+
+** JAJ_localization
+Contains a large number of nodes relevant to localizing:
+- compare_line_maps.py: Provides a GUI for viewing how the local and
+  global line maps compare. Good for seeing if they look like a good
+  fit.
+- display_line_map.py: Subscribe and visually display a line map
+  message from a topic.
+- global_line_map_server.py: Generates the global line map from an
+  occupancy grid and publishes it.
+- line_core.py: Not a node. Provides utilities for line fitting and
+  dealing with line messages.
+- localization.py: From an old lab.
+- local_line_map_server.py: Subscribes to the laser scan and publishes
+  the corresponding local line map.
+- local_map.py: From an old lab.
+- map_server.py: From an old lab.
+- map_transform.py: From an old lab.
+- odom_pose_updater.py: Publishes the robot location as the last
+  particle filter update + the latest odometry reading.
+- particle_filter.py: Runs a particle filter to localize the robot.
+- wheel_drop.py: Detect when the robot has been kidnapped through
+  wheel drop sensors.
+
+Messages:
+- Line: A single line message.
+  : float64 r
+  : float64 theta
+  : geometry_msgs/Point p1
+  : geometry_msgs/Point p2
+- LineArray: A list of line messages that forms a line map.
+  : Header header
+  : Line[] lines
+- WheelDrop: Whether or not the robot is on the ground.
+  : Header header
+  : bool on_ground
+
+** JAJ_navigation
+Contains a few nodes relevant to navigating
+
+- a_star.py: Not a node. Implements the A* algorithm.
+- follow_path.py: Follow a path by driving the turtlebot.
+- path_planning_service_provider.py: From an old lab.
+- safety_stop.py: Publish when the laser scan detects an object too
+  close and publish an e-stop message.
+- test_navigation.py: From an old lab.
+- turtlebot_path_planner.py: Plans a path from the current location to
+  the goal.

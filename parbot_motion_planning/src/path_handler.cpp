@@ -1,0 +1,255 @@
+#include "path_handler.h"
+
+
+path_handler::path_handler(ros::NodeHandle n, double _goal_distance,
+	std::string path_topic)
+{
+	robot_path = std::vector<cart_point>(0);
+	goal_distance = _goal_distance;
+	message_received = false;
+    path_sub = n.subscribe(path_topic, 1,
+        &path_handler::callback, this);
+};
+
+tentacle* path_handler::find_best(std::vector<velocity_set*> velocities)
+{
+	if(velocities.size() == 0)
+		return NULL;
+	tentacle* best_tentacle =
+        velocities[0]->lowest_safe_score(robot_path);
+	//ROS_INFO("Set first best, %d velocity_sets", (int)velocities.size());
+	for(int i=1; i<velocities.size(); i++)
+	{
+		//ROS_INFO("starting new loop");
+		//ROS_INFO("About to generate best of set %d",i);
+		tentacle* current_tent = velocities[i]->lowest_safe_score(robot_path);
+		if(current_tent == NULL)
+		{
+			//ROS_INFO("No valid tents from set %d",i);
+			continue;
+		}
+		//ROS_INFO("Made current tent %d, current_score = %f checking against best score %f",i,current_tent->score,best_tentacle->score);
+		if(best_tentacle->score > current_tent->score)
+			best_tentacle = current_tent;
+		//ROS_INFO("best from %d found", i);
+	}
+	return best_tentacle;
+}
+
+
+tentacle* path_handler::find_best(std::vector<velocity_set*> velocities, std::vector<cost_grid_point> cost_grid)
+{
+    //ROS_INFO("finding best with cost grid");
+    if(velocities.size() == 0)
+        return NULL;
+
+    tentacle* best_tentacle = velocities[0]->lowest_safe_score(robot_path, cost_grid);
+
+    //ROS_INFO("Set first best, %d velocity_sets", (int)velocities.size());
+    for(int i=1; i<velocities.size(); i++)
+    {
+        //ROS_INFO("starting new loop");
+        //ROS_INFO("About to generate best of set %d",i);
+        tentacle* current_tent = velocities[i]->lowest_safe_score(robot_path, cost_grid);
+
+        if(current_tent == NULL)
+        {
+            //ROS_INFO("No valid tents from set %d",i);
+            continue;
+        }
+        //ROS_INFO("Made current tent %d, current_score = %f checking against best score %f",i,current_tent->score,best_tentacle->score);
+        if(best_tentacle->score > current_tent->score)
+            best_tentacle = current_tent;
+        //ROS_INFO("best from %d found", i);
+    }
+    return best_tentacle;
+}
+
+tentacle* path_handler::find_best(std::vector<velocity_set*> velocities,
+    cost_mapper mapper)
+{
+    //ROS_INFO("finding best with cost grid");
+    if(velocities.size() == 0)
+        return NULL;
+
+    tentacle* best_tentacle = velocities[0]->lowest_safe_score(robot_path, mapper);
+
+    //ROS_INFO("Set first best, %d velocity_sets", (int)velocities.size());
+
+    for(int i=1; i<velocities.size(); i++)
+    {
+        //if(best_tentacle != NULL)
+            //break;
+        //ROS_INFO("starting new loop");
+        //ROS_INFO("About to generate best of set %d",i);
+        tentacle* current_tent = velocities[i]->lowest_safe_score(robot_path, mapper);
+
+        if(current_tent == NULL)
+        {
+            //ROS_INFO("No valid tents from set %d",i);
+            continue;
+        }
+        //ROS_INFO("Made current tent %d, current_score = %f checking against best score %f",i,current_tent->get_combined_score(),best_tentacle->get_combined_score());
+        if(best_tentacle->get_combined_score() >
+            current_tent->get_combined_score())
+            best_tentacle = current_tent;
+        //ROS_INFO("best from %d found", i);
+    }
+	//ROS_INFO("best_tentacle combned score %f, path score %f, cost_score %f", best_tentacle->get_combined_score(), best_tentacle->score, best_tentacle->get_cost_score());
+    return best_tentacle;
+}
+
+double path_handler::distToPoint(cart_point point)
+{
+	return sqrt(pow(point.x,2)+pow(point.y,2));
+}
+
+double path_handler::dist_to_end()
+{
+	if(robot_path.empty())
+	{
+		return BIG_NUM;
+	}
+	double dist = distToPoint(*(--robot_path.end()));
+	//ROS_INFO("Dist=%f",dist);
+	return dist;
+}
+
+bool path_handler::goal_reached()
+{
+	return (dist_to_end() < goal_distance);
+}
+
+int path_handler::indexOfClosest(std::vector<cart_point> points)
+{
+	double closest = distToPoint(points[0]);
+	int index = 0;
+	for(int i=1; i<points.size(); i++)
+	{
+		double current = distToPoint(points[i]);
+		if(closest > current)
+		{
+			closest = current;
+			index = i;
+		}
+	}
+	return index;
+}
+
+cart_point pose_stamped_to_cart(geometry_msgs::PoseStamped pose)
+{
+	cart_point point;
+	point.x = pose.pose.position.x;
+	point.y = pose.pose.position.y;
+	//ROS_INFO("%f,%f",point.x,point.y);
+	return point;
+}
+
+std::vector<cart_point> pose_stamped_to_cart(
+	std::vector<geometry_msgs::PoseStamped> poses)
+{
+	std::vector<cart_point> points = std::vector<cart_point>(poses.size());
+	for(int i=0; i<points.size(); i++)
+	{
+		points[i] = pose_stamped_to_cart(poses[i]);
+		//ROS_INFO("%f,%f", points[i].x, points[i].y);
+	}
+	return points;
+}
+
+std::vector<cart_point> path_handler::get_after_index(std::vector<cart_point> points,
+		int index)
+{
+	std::vector<cart_point> short_points = std::vector<cart_point>(points.size()-index);
+	for(int i=index; i<points.size(); i++)
+	{
+		short_points[i-index] = points[i];
+	}
+	return short_points;
+}
+
+void path_handler::callback(const nav_msgs::PathConstPtr& path_msg)
+{
+    //ROS_INFO("got a path");
+	std::vector<geometry_msgs::PoseStamped> poses = path_msg->poses;
+	std::vector<cart_point> raw_points = pose_stamped_to_cart(poses);
+	//ROS_INFO("raw points");
+   	//print_cart_points(raw_points);
+	int index_of_current_point = indexOfClosest(raw_points);
+	if(index_of_current_point==0 || index_of_current_point == raw_points.size()-1)
+	{
+		robot_path = raw_points;
+	}
+	else
+	{
+		robot_path = get_after_index(raw_points, index_of_current_point);
+	}
+
+
+	if(!message_received)
+		message_received = true;
+}
+
+bool path_handler::path_ready()
+{
+	return message_received;
+}
+
+tentacle* path_handler::find_worst(std::vector<tentacle*> tents)
+{
+    tentacle* worst = tents[0];
+    for(int i=1; i<tents.size(); i++)
+    {
+        if(tents[i]->score > worst->score)
+            worst = tents[i];
+    }
+    return worst;
+}
+
+std::vector<tentacle*> path_handler::replace(tentacle* tent_a,
+        tentacle* tent_b, std::vector<tentacle*> tents)
+{
+    for(int i=0; i<tents.size(); i++)
+    {
+        if(tents[i] == tent_a)
+        {
+            tents[i] = tent_b;
+            return tents;
+        }
+    }
+}
+
+
+std::vector<tentacle*> path_handler::find_best(std::vector<velocity_set*> velocities, int num_to_find)
+{
+    //ROS_INFO("finding best");
+    if(velocities.size() == 0)
+        return std::vector<tentacle*>(0);
+    //ROS_INFO("velocities exist");
+    std::vector<tentacle*> best_tents = velocities[0]->lowest_safe_score(robot_path, num_to_find);
+    //ROS_INFO("got first set of tents");
+    tentacle* worst = find_worst(best_tents);
+    //ROS_INFO("found worst");
+    for(int i=1; i<velocities.size(); i++)
+    {
+        //ROS_INFO("starting new loop");
+        //ROS_INFO("About to generate best of set %d",i);
+        std::vector<tentacle*> current_tents = velocities[i]->lowest_safe_score(robot_path, num_to_find);
+        //ROS_INFO("found set %d", i);
+        if(current_tents.size() == 0)
+            continue;
+        for(int j=0; j<current_tents.size(); j++)
+        {
+            //ROS_INFO("Checking score of set %d tent %d of %d",i,j,(int)current_tents.size());
+            if(current_tents[j]->score < worst->score)
+            {
+                //ROS_INFO("about to replace");
+                best_tents = replace(worst, current_tents[j], best_tents);
+                //ROS_INFO("replaced worst");
+                worst = find_worst(best_tents);
+            }
+        }
+    }
+    return best_tents;
+}
+

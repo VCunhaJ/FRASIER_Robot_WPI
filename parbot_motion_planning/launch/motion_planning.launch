@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+	<node pkg="parbot_motion_planning" type="path_transformer" name="path_transformer" />
+	<node pkg="parbot_motion_planning" type="Local_Map_Node" name="Local_Map_Node" />
+	<node pkg="parbot_motion_planning" type="parbot_motion_planning" name="parbot_motion_planning" />
+</launch>

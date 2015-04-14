@@ -1,0 +1,15 @@
+<package>
+  <description brief="computer_sensors">
+
+  </description>
+  <author>RIVeR-Lab</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/computer_sensors</url>
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="device_driver_base"/>
+  <depend package="diagnostic_updater"/>
+</package>
+
+

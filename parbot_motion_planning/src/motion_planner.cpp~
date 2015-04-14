@@ -1,0 +1,529 @@
+#include "motion_planner.h"
+#include <string>
+
+
+motion_planner::motion_planner(ros::NodeHandle _n, std::vector<double> _velocities, std::vector<double> _thetas, robot_footprint* robot_foot, std::string scan_topic, std::string path_target_frame)
+{
+	n = _n;
+	velocities = _velocities;
+	thetas = _thetas;
+
+	init(robot_foot);
+	lsh = new laserscan_handler(n);
+	pbh = new puiblisher_handler(n);
+	pah = new path_handler(n);
+    ppb = new path_publisher(n);
+	mhd = new Map_Handler(n);
+	obstacle_points = std::vector<grid_cart_point>(0);
+};
+
+motion_planner::motion_planner(ros::NodeHandle _n,
+	std::vector<double> _velocities, std::vector<double> _thetas)
+{
+	n = _n;
+	velocities = _velocities;
+	thetas = _thetas;
+	init(new robot_footprint());
+	lsh = new laserscan_handler(n);
+	pbh = new puiblisher_handler(n);
+	pah = new path_handler(n);
+    ppb = new path_publisher(n);
+	mhd = new Map_Handler(n);
+	obstacle_points = std::vector<grid_cart_point>(0);
+};
+
+motion_planner::motion_planner(ros::NodeHandle _n)
+{
+	thetas = std::vector<double>(NUM_THETAS);
+	for(int i=0; i<NUM_THETAS; i++)
+	{
+		thetas[i] = THETA_INIT+DELTA_THETA*i;
+	}
+
+	double v_step = (V_MAX-V_MIN)/(NUM_VELOCITIES-1);
+ 	velocities = std::vector<double>(NUM_VELOCITIES);
+	for(int i=0; i<NUM_VELOCITIES; i++)
+	{
+		velocities[i] = V_MAX-v_step*i;
+	}
+	n = _n;
+	init(new robot_footprint());
+	lsh = new laserscan_handler(n);
+	pbh = new puiblisher_handler(n);
+	pah = new path_handler(n);
+    ppb = new path_publisher(n);
+	mhd = new Map_Handler(n);
+	obstacle_points = std::vector<grid_cart_point>(0);
+};
+
+
+void motion_planner::init(robot_footprint* robot_foot)
+{
+	velocity_sets = std::vector<velocity_set*>(velocities.size());
+	for(int i=0; i<velocity_sets.size(); i++)
+	{
+		//ROS_INFO("Making V_set %d", i);
+		velocity_sets[i] = new velocity_set(velocities[i], thetas, robot_foot);
+		//ROS_INFO("Completed velocity_set %d", i+1);
+	}
+	ready_to_plan = false;
+    cost_map = cost_mapper();
+	//ROS_INFO("Planner init complete");
+}
+
+void motion_planner::stop()
+{
+	//pbh->publish(0,0);
+}
+
+void motion_planner::plan(int rate)
+{
+	//ROS_INFO("plan started");
+	ros::Rate loop_rate(rate);
+	waitForReady();
+    	ROS_INFO("planning begins");
+	double elapsed;
+	ros::Time begin, end;
+	while(ros::ok())
+	{
+		begin = ros::Time::now();
+		//ROS_INFO("planing loop start");
+		plan_once();
+		//ROS_INFO("planning complete");
+		ros::spinOnce();
+		loop_rate.sleep();
+		end = ros::Time::now();
+		elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+		ROS_INFO("Planning loop took %f", elapsed);
+	}
+	stop();
+}
+
+void motion_planner::plan_once()
+{
+	double elapsed;
+	ros::Time start, end;
+    	ros::Time begin = ros::Time::now();
+	if(!ready_to_plan)
+	{
+		waitForReady();
+	}
+
+	//ROS_INFO("ready to plan");
+
+	//ROS_INFO("laser scan is ready if this is a 1 ->	%d", (int)lsh->scan_ready());
+	//start = ros::Time::now();
+	if(pah->goal_reached())
+	{
+		stop();
+		ROS_INFO("Goal Reached");
+		return;
+	}
+	/*end = ros::Time::now();
+	elapsed = ((double)end.sec-(double)start.sec)+((double)end.nsec-(double)start.nsec)/1000000000;
+	ROS_INFO("Took %f to check for goal", elapsed);
+	*/
+	//ROS_INFO("goal not reached");
+
+	std::vector<velocity_set*> safe_sets;
+	//start = ros::Time::now();
+	update_obstacle_points();
+	/*end = ros::Time::now();
+	elapsed = ((double)end.sec-(double)start.sec)+((double)end.nsec-(double)start.nsec)/1000000000;
+	ROS_INFO("Took %f to update obstacle points", elapsed);
+	*/
+	//ROS_INFO("obstacle_points updated");
+	//start = ros::Time::now();
+    	cost_map.update_cost_map(obstacle_points, 3);
+	/*end = ros::Time::now();
+	elapsed = ((double)end.sec-(double)start.sec)+((double)end.nsec-(double)start.nsec)/1000000000;
+	ROS_INFO("Took %f to update the cost map", elapsed);
+	*/
+	//ROS_INFO("cost map made");
+	//start = ros::Time::now();
+	safe_sets = pick_all_sets(obstacle_points);
+	/*end = ros::Time::now();
+	elapsed = ((double)end.sec-(double)start.sec)+((double)end.nsec-(double)start.nsec)/1000000000;
+	ROS_INFO("Took %f to pick safe sets", elapsed);
+	*/
+	//ROS_INFO("made safe_sets %d", (int)safe_sets.size());
+	//start = ros::Time::now();
+	tentacle* the_chosen_one = pah->find_best(safe_sets, cost_map);
+	/*end = ros::Time::now();
+	elapsed = ((double)end.sec-(double)start.sec)+((double)end.nsec-(double)start.nsec)/1000000000;
+	ROS_INFO("Took %f to pick best option", elapsed);
+	*/
+	//print_paths_grid(obstacle_points, pah->robot_path);
+	//print_grid_points(obstacle_points);
+	if(the_chosen_one == NULL ||
+        the_chosen_one->score != the_chosen_one->score)
+	{
+        /*
+		ROS_INFO("Something is wrong!!!!!");
+		stop();//TODO: RECOVERY
+		return;
+        */
+        the_chosen_one = recovery->recover(obstacle_points);
+        if(the_chosen_one == NULL)
+        {
+            if(recovery->canRecover())
+            {
+                ROS_INFO("Recovery running, no results");
+            }
+            else
+            {
+                ROS_INFO("No recovery option found");
+            }
+
+            return;
+        }
+	}
+
+	ROS_INFO("The chosen ones v=%f w=%f and combined_score is %f, path score = %f, cost_score = %f", the_chosen_one->get_v(), the_chosen_one->get_w(), the_chosen_one->get_combined_score(), the_chosen_one->get_score(), the_chosen_one->get_cost_score());
+
+    //cost_map.print_cost_grid(obstacle_points, the_chosen_one->path_points);
+	//STOP IS DISABLED
+	pbh->publish(the_chosen_one);
+    ppb->publish_path(the_chosen_one->path_points);
+    //ppb->publish_path(all_paths);
+	//the_chosen_one->print_path(obstacle_points, pah->robot_path);
+	//print_paths_grid(obstacle_points, pah->robot_path);
+	//print_sets(safe_sets, obstacle_points, pah->robot_path);
+    end = ros::Time::now();
+    elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+
+    //ROS_INFO("Planning took = %f s", elapsed);
+}
+
+void motion_planner::print_paths()
+{
+	int num_lines = velocity_sets[0]->tentacles[0]->path_points.size();
+	for(int i=1; i<velocity_sets.size(); i++)
+	{
+		if(num_lines < velocity_sets[i]->tentacles[0]->path_points.size())
+			num_lines = velocity_sets[i]->tentacles[0]->path_points.size();
+	}
+	for(int i=0; i<num_lines; i++)
+	{
+		for(int j=0; j<velocity_sets.size(); j++)
+		{
+			velocity_sets[j]->print_path_inline(i);
+		}
+		std::cout << 0 << "\n";
+	}
+}
+
+void motion_planner::print_paths_grid(std::vector<grid_cart_point> obstacle_points,
+	std::vector<cart_point> target_path)
+{
+	int num_points = 0;
+	for(int i=0; i<velocity_sets.size(); i++)
+	{
+		if(num_points < velocity_sets[i]->len_path_points())
+		{
+			num_points = velocity_sets[i]->len_path_points();
+		}
+	}
+	for(int i=0; i<num_points; i++)
+	{
+		for(int j=0; j<velocity_sets.size(); j++)
+		{
+				velocity_sets[j]->print_paths_grid_inline(i);
+		}
+		if(i >= obstacle_points.size())
+			print_grid_cart_point_inline(*(--obstacle_points.end()));
+		else
+			print_grid_cart_point_inline(obstacle_points[i]);
+
+		if(i >= target_path.size())
+			print_grid_cart_point_endline(cart_to_grid(*(--target_path.end())));
+		else
+			print_grid_cart_point_endline(cart_to_grid(target_path[i]));
+	}
+}
+
+void motion_planner::print_paths_grid()
+{
+	int num_points = 0;
+	for(int i=0; i<velocity_sets.size(); i++)
+	{
+		if(num_points < velocity_sets[i]->len_path_points())
+		{
+			num_points = velocity_sets[i]->len_path_points();
+		}
+	}
+	for(int i=0; i<num_points; i++)
+	{
+		for(int j=0; j<velocity_sets.size(); j++)
+		{
+			if(j < velocity_sets.size() - 1)
+				velocity_sets[j]->print_paths_grid_inline(i);
+			else
+				velocity_sets[j]->print_paths_grid_endline(i);
+		}
+	}
+}
+
+
+void motion_planner::print_grids()
+{
+	std::vector<std::vector<std::vector<grid_cart_point> > > motion_grids =
+		std::vector<std::vector<std::vector<grid_cart_point> > >(velocity_sets.size(),
+		std::vector<std::vector<grid_cart_point> >(0, std::vector<grid_cart_point>(0)));/*velocity_sets[0]->tentacles.size(),
+		std::vector<grid_cart_point>(velocity_sets[0]->len_grid_points())));*/
+
+	int num_sets, num_tents, num_points;
+	num_sets = velocity_sets.size();
+
+	for(int i=0; i<num_sets; i++)
+	{
+		motion_grids[i] = velocity_sets[i]->get_collision_grids();
+	}
+
+	num_tents = motion_grids[0].size();//assumes identical num tents -> true in init
+	num_points = motion_grids[0][0].size();
+	for(int i=0; i<num_sets; i++)
+	{
+		for(int j=0; j<num_tents; j++)
+		{
+			if(num_points < motion_grids[i][j].size())
+				num_points = motion_grids[i][j].size();
+		}
+	}
+
+	for(int k=0; k<num_points; k++)
+	{
+		for(int i=0; i<num_sets; i++)
+		{
+			for(int j=0; j<num_tents; j++)
+			{
+				grid_cart_point point;
+				if(k >= motion_grids[i][j].size())
+				{
+					point = *(--motion_grids[i][j].end());
+				}
+				else
+				{
+					point = motion_grids[i][j][k];
+				}
+
+				if(i == num_sets-1 && j == num_tents -1)
+				{
+					print_grid_cart_point_endline(point);
+				}
+				else
+				{
+					print_grid_cart_point_inline(point);
+				}
+			}
+		}
+	}
+}
+
+velocity_set* motion_planner::pick_set(std::vector<grid_cart_point> conflict_points)
+{
+	for(int i=0; i<velocity_sets.size(); i++)
+	{
+		if(velocity_sets[i]->has_safe_tentacle(conflict_points))
+		{
+			velocity_sets[i]->update_safe_tentacles(conflict_points);
+			return velocity_sets[i];
+		}
+	}
+	return NULL;
+}
+
+std::vector<velocity_set*> motion_planner::pick_sets(std::vector<grid_cart_point> conflict_points,
+	int num_sets)
+{
+	std::vector<velocity_set*> sets = std::vector<velocity_set*>(num_sets);
+	int set_count = 0;
+	for(int i=0; i<velocity_sets.size(); i++)
+	{
+		if(set_count == num_sets)
+			break;
+		else if(velocity_sets[i]->has_safe_tentacle(conflict_points))
+		{
+			velocity_sets[i]->update_safe_tentacles(conflict_points);
+			sets[set_count] = velocity_sets[i];
+			set_count++;
+		}
+	}
+
+	if(set_count == 0)
+		sets = std::vector<velocity_set*>(0);
+
+	return sets;
+}
+
+std::vector<velocity_set*> motion_planner::pick_all_sets(std::vector<grid_cart_point> conflict_points)
+{
+	std::vector<velocity_set*> sets = std::vector<velocity_set*>(velocity_sets.size());
+	int set_count = 0;
+	for(int i=0; i<velocity_sets.size(); i++)
+	{
+		if(velocity_sets[i]->has_safe_tentacle(conflict_points))
+		{
+			//ROS_INFO("set %d has safe options, are now safe_set %d", i, set_count);
+			velocity_sets[i]->update_safe_tentacles(conflict_points);
+			sets[set_count] = velocity_sets[i];
+			set_count++;
+		}
+	}
+
+	sets.resize(set_count);
+
+	return sets;
+}
+
+void motion_planner::print_sets(std::vector<velocity_set*> sets,
+	std::vector<grid_cart_point> conflict_points)
+{
+	int num_points = 0;
+	for(int i=0; i<sets.size(); i++)
+	{
+		if(num_points < sets[i]->len_grid_points(sets[i]->safe_tentacles))
+			num_points = sets[i]->len_grid_points(sets[i]->safe_tentacles);
+	}
+
+	for(int i=0; i<num_points; i++)
+	{
+		for(int j=0; j<sets.size(); j++)
+		{
+			sets[j]->print_safe_grid_inline(i);
+		}
+		if(i < conflict_points.size())
+			print_grid_cart_point_endline(conflict_points[i]);
+		else
+			print_grid_cart_point_endline(*(--conflict_points.end()));
+	}
+}
+
+void motion_planner::print_sets(std::vector<velocity_set*> sets,
+	std::vector<grid_cart_point> conflict_points, std::vector<cart_point> target_path)
+{
+	int num_points = 0;
+	for(int i=0; i<sets.size(); i++)
+	{
+		if(num_points < sets[i]->len_grid_points(sets[i]->safe_tentacles))
+			num_points = sets[i]->len_grid_points(sets[i]->safe_tentacles);
+	}
+
+	for(int i=0; i<num_points; i++)
+	{
+		for(int j=0; j<sets.size(); j++)
+		{
+			sets[j]->print_safe_grid_inline(i);
+		}
+
+		if(i < target_path.size())
+			print_grid_cart_point_inline(cart_to_grid(target_path[i]));
+		else
+			print_grid_cart_point_inline(cart_to_grid(*(--target_path.end())));
+
+		if(i < conflict_points.size())
+			print_grid_cart_point_endline(conflict_points[i]);
+		else
+			print_grid_cart_point_endline(*(--conflict_points.end()));
+	}
+}
+
+void motion_planner::print_sets_path(std::vector<velocity_set*> sets,
+	std::vector<grid_cart_point> conflict_points)
+{
+	int num_points = 0;
+	for(int i=0; i<sets.size(); i++)
+	{
+		if(num_points < sets[i]->safe_tentacles[0]->path_points.size())
+			num_points = sets[i]->safe_tentacles[0]->path_points.size();
+	}
+
+	for(int i=0; i<num_points; i++)
+	{
+		for(int j=0; j<sets.size(); j++)
+		{
+			sets[j]->print_safe_paths_inline(i);
+		}
+		if(i < conflict_points.size())
+			print_grid_cart_point_endline(conflict_points[i]);
+		else
+			print_grid_cart_point_endline(*(--conflict_points.end()));
+	}
+}
+
+void motion_planner::print_sets_path(std::vector<velocity_set*> sets,
+	std::vector<grid_cart_point> obstacle_points, std::vector<cart_point> target_path)
+{
+	int num_points = 0;
+	for(int i=0; i<sets.size(); i++)
+	{
+		if(num_points < sets[i]->safe_tentacles[0]->path_points.size())
+			num_points = sets[i]->safe_tentacles[0]->path_points.size();
+	}
+
+	for(int i=0; i<num_points; i++)
+	{
+		for(int j=0; j<sets.size(); j++)
+		{
+			sets[j]->print_safe_paths_inline(i);
+		}
+
+		if(i < target_path.size())
+			print_grid_cart_point_inline(cart_to_grid(target_path[i]));
+		else
+			print_grid_cart_point_inline(cart_to_grid(*(--target_path.end())));
+
+		if(i < obstacle_points.size())
+			print_grid_cart_point_endline(obstacle_points[i]);
+		else
+			print_grid_cart_point_endline(*(--obstacle_points.end()));
+	}
+}
+
+void motion_planner::update_obstacle_points()
+{
+	//ROS_INFO("about to update obstacles");
+    obstacle_points = merge_unique(lsh->get_scan_points(), mhd->get_points());
+	//obstacle_points = lsh->get_scan_points();
+	//ROS_INFO("got %d laser and %d map points, resulting in %d unique points", (int)lsh->get_scan_points().size(), (int)mhd->get_points().size(), (int)obstacle_points.size());
+}
+
+void motion_planner::update_ready()
+{
+	//ROS_INFO("about to check ready");
+	if(pah->path_ready() && lsh->scan_ready() && mhd->ready())
+	{
+		ready_to_plan = true;
+		//ROS_INFO("update says go");
+	}
+	else
+    	{
+		ready_to_plan = false;
+        	//ROS_INFO("path is %d laser is %d and map is %d not ready", pah->path_ready(), lsh->scan_ready(), mhd->ready());
+    	}
+}
+
+void motion_planner::waitForReady()
+{
+	ros::Rate loop_rate(10);
+	while(ros::ok() && !ready_to_plan)
+	{
+		//ROS_INFO("checking ready");
+		update_ready();
+		//ROS_INFO("ready checked");
+		ros::spinOnce();
+		//ROS_INFO("spun");
+		loop_rate.sleep();
+		//ROS_INFO("slept");
+	}
+}
+
+int main(int argc, char **argv)
+{
+	ros::init(argc, argv, "parbot_motion_planning");
+	ros::NodeHandle n;
+	motion_planner* planner = new motion_planner(n);
+    	//ROS_INFO("time to plan");
+	planner->plan();
+	return 0;
+}

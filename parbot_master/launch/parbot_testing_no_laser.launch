@@ -1,0 +1,5 @@
+<launch> 
+	<include file="$(find parbot_depthimage_to_laserscan)/launch/multi-primesense.launch" />
+	<include file="$(find parbot_tfs)/launch/parbot_tfs.launch" />
+	<!--<include file="$(find parbot_motor_control)/launch/parbot_motor_control.launch" />-->
+</launch>

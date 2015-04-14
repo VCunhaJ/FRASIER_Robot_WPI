@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+	<include file="$(find parbot_depthimage_to_laserscan)/launch/prime_sense_tfs.launch">
+	</include>
+	<node pkg="tf" type="static_transform_publisher" name="base_fp_tf" args="0 0 0.127 0 0 0  base_footprint base_link 100"/>
+	<node pkg="tf" type="static_transform_publisher" name="camera_tf" args="-0.5 0 1 1.57 3.14 1.57 base_link camera 100"/>
+	<node pkg="tf" type="static_transform_publisher" name="pixy_tf" args ="-0.5 0 1 0 -1.57 1.57 base_link pixy 100"/>
+</launch>

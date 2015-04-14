@@ -1,0 +1,14 @@
+<package>
+  <description brief="simmap">
+
+     simmap
+
+  </description>
+  <author>Joe</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/simmap</url>
+
+</package>
+
+

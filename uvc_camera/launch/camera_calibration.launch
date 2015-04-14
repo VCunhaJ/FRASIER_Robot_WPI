@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<node pkg="uvc_camera" type="uvc_camera_node" name="uvc_cam_node" >
+		<param name="video_device" type="string" value="/dev/video0" />
+		<param name="image_width" type="int" value="1920" />
+		<param name="image_height" type="int" value="1080" /> 
+		<param name="pixel_format" type="string" value="mjpeg"/>
+		<param name="camera_frame_id" type="string" value="camera"/>
+	</node>
+
+</launch>

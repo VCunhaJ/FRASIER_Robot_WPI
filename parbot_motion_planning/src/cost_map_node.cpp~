@@ -1,0 +1,142 @@
+#include "cost_map_node.h"
+
+cost_map_node::cost_map_node(ros::NodeHandle _n, double _cost, double _radius, double _grid_size)
+{
+    cost = _cost;
+    radius = _radius;
+    grid_size = _grid_size;
+    mapper = new cost_mapper(cost, radius, grid_size);
+    std::string pub_topic = std::string("cost_map");
+    std::string sub_topic = std::string("map");
+    std::string pub_2_topic = std::string("cost_map_2");
+    n = _n;
+    //ROS_INFO("about to setup subscribers");
+    map_sub = n.subscribe(sub_topic, 1, &cost_map_node::mapCallback, this);
+    cost_pub = n.advertise<parbot_motion_planning::cost_map>(pub_topic, 1);
+    cost_2_pub = n.advertise<parbot_motion_planning::cost_map_2>(pub_2_topic, 1);
+	got_message = false;
+    //ROS_INFO("Starting spin");
+    //while(!got_message)
+	//ros::spinOnce();
+	ros::spin();
+};
+
+std::vector<cost_point> cost_map_node::convert_occupancy_grid(nav_msgs::OccupancyGrid grid)
+{
+    int obstacles = 0; // number of nodes in this iteration of y
+    float res = grid.info.resolution; //meters per cell
+    float width = grid.info.width;
+    float height = grid.info.height;
+    std::vector<cost_point> all_obstacles = std::vector<cost_point>(width*height);
+
+    occupancy_grid = std::vector<std::vector<double> >(width, std::vector<double>(height));
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int current_data = ((y*width) + x); //may need to cast to int
+            occupancy_grid[x][y] = grid.data[current_data];
+            if ((grid.data[current_data] > THRESHOLD) && (grid.data[current_data] != -1))
+            {
+                cart_point point;
+                point.x = (res*x - (res*width/2));
+                point.y = (res*y - (res*height/2));
+
+                cost_point c_point;
+                c_point.point=point;
+                c_point.cost=grid.data[current_data];
+
+                all_obstacles[obstacles] = c_point;
+                obstacles++; //increase number o  in this row
+		//std::cout << -1*point.y << "," << point.x << "\n";
+            }
+        }
+    }
+    all_obstacles.resize(obstacles);
+    return all_obstacles;
+}
+
+void cost_map_node::mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
+{
+    double elapsed;
+    ros::Time begin = ros::Time::now();
+    //ROS_INFO("got a message");
+    nav_msgs::OccupancyGrid map;
+    map.info = msg->info;
+    map.data = msg->data;
+    map.header = msg->header;
+    grid_size = map.info.resolution;
+    //ROS_INFO("made  local map msg");
+    if(grid_size != DEFAULT_GRID_SIZE)
+        mapper = new cost_mapper(cost, radius, grid_size);
+    //ROS_INFO("mapper ready");
+    std::vector<cost_point> cost_points = convert_occupancy_grid(map);
+    /*
+    ROS_INFO("converted grid, %d points found", (int)cost_points.size());
+    mapper->update_cost_map(cart_to_grid((cost_to_cart(cost_points))));
+    ROS_INFO("updated cost_map");
+    /*/
+    int x_dimension = map.info.width;
+    int y_dimension = map.info.height;
+    //ROS_INFO("x_dim,y_dim = %d,%d", x_dimension, y_dimension);
+    Map_Data* md = new Map_Data(cost_to_cart(cost_points), x_dimension, y_dimension, grid_size);
+    md->set_occ_grid(occupancy_grid);
+    //ROS_INFO("In Map_Data %d,%d", md->get_x_dimension(), md->get_y_dimension());
+    ros::Time beginUpdate = ros::Time::now();
+    mapper->update_cost_map(md);
+    ros::Time endUpdate = ros::Time::now();
+    elapsed = ((double)endUpdate.sec-(double)beginUpdate.sec)+((double)endUpdate.nsec-(double)beginUpdate.nsec)/1000000000;
+    ROS_INFO("map update took %f", elapsed);
+    //*/
+    
+    ros::Time beginGet = ros::Time::now();
+    parbot_motion_planning::cost_map cost_map = mapper->get_map();
+    ros::Time endGet = ros::Time::now();
+    elapsed = ((double)endGet.sec-(double)beginGet.sec)+((double)endGet.nsec-(double)beginGet.nsec)/1000000000;
+    ROS_INFO("getting the map took %f", elapsed);
+    
+    ros::Time beginGet2 = ros::Time::now();
+    //parbot_motion_planning::cost_map_2 cost_map_2 = mapper->get_map_2();
+    ros::Time endGet2 = ros::Time::now();
+    elapsed = ((double)endGet2.sec-(double)beginGet2.sec)+((double)endGet2.nsec-(double)beginGet2.nsec)/1000000000;
+   // ROS_INFO("getting map_2 took %f", elapsed);
+    //*/
+    
+    ROS_INFO("made cost_map");make_cost_points
+    ros::Time beginPub = ros::Time::now();
+    cost_pub.publish(cost_map);
+    ros::Time endPub = ros::Time::now();
+    elapsed = ((double)endPub.sec-(double)beginPub.sec)+((double)endPub.nsec-(double)beginPub.nsec)/1000000000;
+    //ROS_INFO("publishIn the map took %f", elapsed);
+    
+    //cost_2_pub.publish(cost_map_2);
+    ros::Time end = ros::Time::now();
+    elapsed = ((double)end.sec-(double)begin.sec)+((double)end.nsec-(double)begin.nsec)/1000000000;
+    ROS_INFO("Cost map generatio time = %f s", elapsed);
+	//csv_print();
+	got_message = true;
+}
+
+void cost_map_node::csv_print()
+{
+	parbot_motion_planning::cost_map_2 cost_map_2 = mapper->get_map_2();
+	for(int y=0; y<cost_map_2.column[0].row.size(); y++)
+	{
+		for(int x=0; x<cost_map_2.column.size(); x++)
+		{
+			
+			if(cost_map_2.column[x].row[y] == 0)
+				continue;
+			std::cout << y << "," << x << "\n";//"," << cost_map_2.column[x].row[y] << "\n";
+		}
+	}
+}
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "cost_map_generator");
+    ros::NodeHandle n;
+    cost_map_node* cost_node = new cost_map_node(n);
+    return 0;
+}

@@ -1,0 +1,16 @@
+<package>
+  <description brief="JAJ_final">
+
+     JAJ_final
+
+  </description>
+  <author>Alex Henning</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/JAJ_final</url>
+  <depend package="JAJ_localization"/>
+  <depend package="JAJ_navigation"/>
+
+</package>
+
+

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+	<include file="$(find parbot_pathplanning)/launch/PARbot_gmapping.launch" />
+	<node pkg="parbot_pathplanning" type="PARbot_pose_transformer_node" name="pose_transformer" />
+	<!--<node pkg="parbot_motion_planning" type="cost_map_generator" name="cost_map_node" />-->
+	<node pkg="parbot_motion_planning" type="QR_Pose_TF" name="QR_Pose_TF"/>
+	<node pkg="parbot_pathplanning" type="PARbot_search_node" name="path_planning" > 
+		<!--<remap from="Tracking/map/object_position" to="move_base_simple/goal"/>-->
+	</node>
+	<!--<node pkg="parbot_pathplanning" type="PARbot_cost_search_node" name="path_planning" >
+		<remap from="move_base_simple/goal" to="Tracking/object_position"/>
+	</node>-->
+</launch>

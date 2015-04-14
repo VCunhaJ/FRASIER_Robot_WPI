@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/svn/hlcps/!svn/ver/421/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/RoboteqNXTMotorController.py_tests
+END
+test_accessories.py
+K 25
+svn:wc:ra_dav:version-url
+V 156
+/svn/hlcps/!svn/ver/388/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/RoboteqNXTMotorController.py_tests/test_accessories.py
+END
+run_tests.py
+K 25
+svn:wc:ra_dav:version-url
+V 149
+/svn/hlcps/!svn/ver/421/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/RoboteqNXTMotorController.py_tests/run_tests.py
+END

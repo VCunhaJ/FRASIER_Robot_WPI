@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch> 
+	<include file="$(find parbot_depthimage_to_laserscan)/launch/parbot_vision.launch" />
+	<include file="$(find parbot_tfs)/launch/parbot_tfs.launch" />
+	<include file="$(find parbot_motor_control)/launch/motor_control.launch" />
+	<include file="$(find parbot_pathplanning)/launch/mapping.launch" />
+	<include file="$(find parbot_motion_planning)/launch/motion_planning.launch" />
+</launch>

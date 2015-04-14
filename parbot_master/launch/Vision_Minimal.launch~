@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch> 
+	<include file="$(find parbot_depthimage_to_laserscan)/launch/parbot_vision.launch" />
+	<include file="$(find parbot_tfs)/launch/parbot_tfs.launch" />
+</launch>

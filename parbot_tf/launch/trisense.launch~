@@ -1,0 +1,8 @@
+<!-- Launch file for using a Primesense for PARbot -->
+<launch>
+	<node pkg="tf" type="static_transform_publisher" name="primesense1_tf" args="-0.1 0 1 0 0 0 base_link primesense1_link 100"/>
+	<node pkg="tf" type="static_transform_publisher" name="primesense2_tf" args="0.0 0 1 0 0 0 base_link primesense2_link 100"/>
+	<node pkg="tf" type="static_transform_publisher" name="primesense3_tf" args="0.1 0 1 0 0 0 base_link primesense3_link 100"/>
+	<!--<node pkg="tf" type="static_transform_publisher" name="base_link_world" args="0 0 0.25 0 0 0 world base_link 100"/>-->
+	
+</launch>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+ 	<node name="motorcontroller_driver" pkg="roboteq_mc_nxtgen_driver"
+        type="driver.py" output="screen">
+        <rosparam command="load" 
+            file="$(find parbot_motor_control)/launch/config_driver.yaml"/>
+   	 </node>
+</launch>

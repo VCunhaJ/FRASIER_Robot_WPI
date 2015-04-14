@@ -1,0 +1,65 @@
+#ifndef MOTION_PLANNER_H
+#define MOTION_PLANNER_H	
+
+#include "velocity_set.h"
+#include "laserscan_handler.h"
+#include "publisher_handler.h"
+#include "path_handler.h"
+#include "ros/ros.h"
+
+class motion_planner{
+public:
+	//tentacles will be searched in order of velocities
+	motion_planner(ros::NodeHandle _n, std::vector<double> _velocities, 
+		std::vector<double> _thetas, robot_footprint* robot_foot, 
+		std::string path_topic=PATH_TOPIC, 
+		std::string path_target_frame=PATH_TARGET_FRAME);
+
+	motion_planner(ros::NodeHandle _n, std::vector<double> _velocities, 
+		std::vector<double> _thetas);
+
+	motion_planner(ros::NodeHandle _n);	
+
+	
+	void plan(int rate=RATE);
+	void plan_once();
+	velocity_set* pick_set(std::vector<grid_cart_point> conflict_points);
+	std::vector<velocity_set*> pick_sets(std::vector<grid_cart_point> conflict_points, 
+		int num_sets=SETS_TO_SELCT);
+	std::vector<velocity_set*> pick_all_sets(std::vector<grid_cart_point> conflict_points);
+	void print_sets(std::vector<velocity_set*> sets, 
+		std::vector<grid_cart_point> conflict_points);
+	void print_sets(std::vector<velocity_set*> sets, 
+		std::vector<grid_cart_point> conflict_points, 
+		std::vector<cart_point> target_path);
+	void print_sets_path(std::vector<velocity_set*> sets,
+	 std::vector<grid_cart_point> conflict_points);
+	void print_sets_path(std::vector<velocity_set*> sets, 
+		std::vector<grid_cart_point> obstacle_points, 
+		std::vector<cart_point> target_path);
+	void update_obstacle_points();
+
+	std::vector<double> velocities, thetas;
+	std::vector<velocity_set*> velocity_sets;
+	std::vector<grid_cart_point> robot_path;
+	std::vector<grid_cart_point> obstacle_points;
+	laserscan_handler* lsh;
+	puiblisher_handler* pbh;
+	path_handler* pah;
+	ros::NodeHandle n;
+	bool ready_to_plan;
+
+
+
+	void print_paths();
+	void print_paths_grid();
+	void print_paths_grid(std::vector<grid_cart_point> obstacle_points, std::vector<cart_point> target_path);
+	void print_grids();
+	
+private:
+	void stop();
+	void init(robot_footprint* robot_foot);
+	void update_ready();
+};
+
+#endif

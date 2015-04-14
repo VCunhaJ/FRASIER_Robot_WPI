@@ -1,0 +1,8 @@
+<launch>
+	<rosparam param="scale_linear">0.5</rosparam> <!--params for turtle_teleop_key-->
+	<rosparam param="scale_angular">0.015</rosparam>
+	<node  pkg="roboteq_mc_nxtgen_driver" type="velocity_control.py" name="$(anon anna_motorcontroller)">
+			<remap from="anna_motorcontroller/velocity" to="turtle1/command_velocity"/></node>
+	<node name="$(anon turtle_teleop_key)" pkg="turtlesim" 
+	    type="turtle_teleop_key" output="screen" launch-prefix="xterm -e" />
+</launch>

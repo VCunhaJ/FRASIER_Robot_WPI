@@ -1,0 +1,4 @@
+[INFO] [WallTime: 1391368193.360181] Waiting for service
+[INFO] [WallTime: 1391368193.365797] Started
+[INFO] [WallTime: 1391368193.374237] Received OccupancyGrid
+no path exists, start or target not valid

@@ -1,0 +1,78 @@
+<link>
+ <collision name='base_link_collision_Primesense_C'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model:$(find rbe_500_model)/meshes/Primesense_C.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual_Primesense_C'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model:$(find rbe_500_model)/meshes/Primesense_C.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+  </link>
+  <link>
+<collision name='base_link_collision_Right Wheel'>
+        <pose>-0.13126 -0.241938 -0.0049364 -1.5708 -5.55112e-17 -1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model:$(find rbe_500_model)/meshes/Right Wheel.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual_Right Wheel'>
+        <pose>-0.13126 -0.241938 -0.0049364 -1.5708 -5.55112e-17 -1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model:$(find rbe_500_model)/meshes/Right Wheel.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+  </link>
+  <link
+    name="left wheel">
+    <inertial>
+      <pose>
+        0.0381 6.93889390390723E-18 -5.55111512312578E-17 0 0 0 <pose/>
+      <mass> 0.47553449779267 </mass>
+      <inertia>
+        <ixx>0.00490966460932713</ixx>
+        <ixy>-3.54087862241003E-19</ixy>
+        <ixz>-1.51683481439318E-19</ixz>
+        <iyy>0.00292364483627101</iyy>
+        <iyz>2.366776865394E-34"</iyz>
+        <izz>0.00292364483627101</izz>
+      <intertia/>
+    </inertial>
+   <collision name='base_link_collision_left wheel'>
+        <pose>-0.13126 -0.241938 -0.0049364 -1.5708 -5.55112e-17 -1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model:$(find rbe_500_model)/meshes/left wheel.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual_left wheel'>
+        <pose>-0.13126 -0.241938 -0.0049364 -1.5708 -5.55112e-17 -1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model:$(find rbe_500_model)/meshes/left wheel.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+    </link>

@@ -1,0 +1,5 @@
+#include <ros/ros.h>
+#include <cmvision/Blob.msg>
+#include <cmvision/Blobs.msg>
+#include <math.h>
+

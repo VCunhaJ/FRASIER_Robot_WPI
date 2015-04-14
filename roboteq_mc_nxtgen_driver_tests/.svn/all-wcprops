@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/hlcps/!svn/ver/651/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests
+END
+package.xml
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/hlcps/!svn/ver/643/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/package.xml
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/hlcps/!svn/ver/643/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/CMakeLists.txt
+END

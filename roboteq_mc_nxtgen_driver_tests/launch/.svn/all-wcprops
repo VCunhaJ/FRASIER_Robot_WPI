@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/hlcps/!svn/ver/651/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/launch
+END
+test_closed_loop_with_knmtx.launch
+K 25
+svn:wc:ra_dav:version-url
+V 143
+/svn/hlcps/!svn/ver/651/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/launch/test_closed_loop_with_knmtx.launch
+END
+test_closed_loop_no_knmtx.launch
+K 25
+svn:wc:ra_dav:version-url
+V 141
+/svn/hlcps/!svn/ver/651/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/launch/test_closed_loop_no_knmtx.launch
+END
+test_open_loop_with_knmtx.launch
+K 25
+svn:wc:ra_dav:version-url
+V 141
+/svn/hlcps/!svn/ver/651/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/launch/test_open_loop_with_knmtx.launch
+END
+test_open_loop_no_knmtx.launch
+K 25
+svn:wc:ra_dav:version-url
+V 139
+/svn/hlcps/!svn/ver/651/robot/base/motorctlr/roboteq/ros/_branches/dev/roboteq_mc_nxtgen_driver_tests/launch/test_open_loop_no_knmtx.launch
+END

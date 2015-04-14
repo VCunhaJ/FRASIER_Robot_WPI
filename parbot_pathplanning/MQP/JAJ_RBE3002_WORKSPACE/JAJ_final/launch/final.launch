@@ -1,0 +1,8 @@
+<launch>
+
+<include file="$(find JAJ_localization)/launch/visualization.launch"></include>
+<include file="$(find JAJ_localization)/launch/localization.launch"></include>
+<include file="$(find JAJ_navigation)/launch/navigation.launch"></include>
+<node pkg="dynamic_reconfigure" name="reconfigure_gui" type="reconfigure_gui"></node>
+
+</launch>

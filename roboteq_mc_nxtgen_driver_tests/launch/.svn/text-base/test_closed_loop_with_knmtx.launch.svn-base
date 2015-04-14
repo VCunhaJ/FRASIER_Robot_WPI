@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+    <node name="roboteq_mc_nxtgen_driver" pkg="roboteq_mc_nxtgen_driver"
+        type="driver.py" output="screen">
+        <rosparam>
+            closedLoop: true
+            onConnect: ["!VAR 0 1", "!G 1 0", "!G 2 0", "^KP 1 8", "^KP 2 8", "^KI 1 10", "^KI 2 10", "^KD 1 100", "^KD 2 100", "^MAC 1 5000", "^MAC 2 5000", "^MDEC 1 5000", "^MDEC 2 5000", 0.06]
+            fwdKnmtx: [[0.00130914, 0.00130914], [-0.00504078, 0.00504078]]
+            odomPubPeriod: 0.05
+            batteryPubPeriod: 5.0
+        </rosparam>
+    </node>
+    <node name="roboteq_mc_nxtgen_driver_tests" 
+            pkg="roboteq_mc_nxtgen_driver_tests"
+            type="test_commands.py" output="screen">
+        <param name="test" value="closed_loop_with_knmtx" />
+    </node>
+</launch>

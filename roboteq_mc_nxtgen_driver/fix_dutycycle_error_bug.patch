@@ -1,0 +1,24 @@
+Index: scripts/RoboteqNXTMotorController.py
+===================================================================
+--- scripts/RoboteqNXTMotorController.py	(revision 725)
++++ scripts/RoboteqNXTMotorController.py	(working copy)
+@@ -300,13 +300,13 @@
+     def setDutyCycle(self, channel, v): 
+         """
+         Args:
+-            v: in scale [-1;+1] of max power set by MXPF and MXPR
++            v: in scale [-1;+1] of max power which is set by MXPF and MXPR
+         """
+-        if v>1.0 or v<-1.0:
+-            self.log("Recevied a duty cycle command = %f for channel=%d. "+
+-                "Command is is out of [-1;1] range. Ignoring." % (v, channel))
+-        else:
+-            self.sendMotorCmd(channel, int(1000*v))
++        v_trimmed = min(1.0, max(-1.0, v))
++        if v_trimmed != v:
++            self.log("Duty cycle command=%f for channel=%d is out of [-1;1] "\
++                "range. Trimming it to %f" % (v, channel, v_trimmed))
++        self.sendMotorCmd(channel, int(1000*v_trimmed))
+     
+     def setDutyCycles(self, volts):
+         for ch, v in enumerate(volts):

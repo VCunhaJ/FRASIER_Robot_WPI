@@ -1,0 +1,215 @@
+#include "motion_planning_structures.h"
+#include <math.h>
+
+double round(double val)
+{
+    return floor(val + 0.5);
+}
+
+cart_point polar_to_cart(polar_point p_point)
+{
+	cart_point c_point;
+	c_point.y = p_point.r*sin(p_point.theta);//*-1;
+	c_point.x = p_point.r*cos(p_point.theta);
+	return c_point;
+}
+
+polar_point cart_to_polar(cart_point c_point)
+{
+	polar_point p_point;
+	p_point.r = sqrt(pow(c_point.x,2)+pow(c_point.y,2));
+	p_point.theta = atan2(c_point.x,c_point.y);
+	return p_point;
+}
+
+void print_cart_point(cart_point point)
+{
+	std::cout << -1*point.y << "," << point.x;
+}
+
+void print_cart_point_inline(cart_point point)
+{
+	print_cart_point(point);
+	std::cout << ",";
+}
+
+void print_cart_point_endline(cart_point point)
+{
+	print_cart_point(point);
+	std::cout << "\n";
+}
+
+void print_grid_cart_point(grid_cart_point point)
+{
+	std::cout << -1*point.y << "," << point.x;
+}
+
+void print_grid_cart_point_inline(grid_cart_point point)
+{
+	print_grid_cart_point(point);
+	std::cout << ",";
+}
+
+void print_grid_cart_point_endline(grid_cart_point point)
+{
+	print_grid_cart_point(point);
+	std::cout << "\n";
+}
+
+grid_cart_point cart_to_grid(cart_point c_point, double grid_size)
+{
+	grid_cart_point g_point;
+	g_point.x = round(c_point.x/grid_size);
+	g_point.y = round(c_point.y/grid_size);
+	return g_point;
+}
+
+cart_point grid_to_cart(grid_cart_point g_point, double grid_size)
+{
+	cart_point c_point;
+	c_point.x = g_point.x*grid_size;
+	c_point.y = g_point.y*grid_size;
+	return c_point;
+}
+
+std::vector<cart_point> grid_to_cart(std::vector<grid_cart_point> g_points, double grid_size)
+{
+	std::vector<cart_point> c_points = std::vector<cart_point>(g_points.size());
+	for(int i=0; i<c_points.size(); i++)
+	{
+		c_points[i] = grid_to_cart(g_points[i]);
+	}
+	return c_points;
+}
+
+bool grid_cart_points_equal(grid_cart_point p1, grid_cart_point p2)
+{
+	return (p1.x==p2.x) && (p1.y==p2.y);
+}
+
+grid_cart_point polar_to_grid(polar_point p_point)
+{
+	return cart_to_grid(polar_to_cart(p_point));
+}
+
+void print_cart_points(std::vector<cart_point> points)
+{
+	for(int i=0; i<points.size(); i++)
+	{
+		print_cart_point_endline(points[i]);
+	}
+}
+
+void print_grid_points(std::vector<grid_cart_point> points)
+{
+	for(int i=0; i<points.size(); i++)
+	{
+		print_grid_cart_point_endline(points[i]);
+	}
+}
+
+std::vector<grid_cart_point> polar_to_grid(std::vector<polar_point> polar_points)
+{
+	std::vector<grid_cart_point> grid_points = std::vector<grid_cart_point>(polar_points.size());
+	for(int i=0; i<grid_points.size(); i++)
+	{
+		grid_points[i] = polar_to_grid(polar_points[i]);
+	}
+	return grid_points;
+}
+
+std::vector<cart_point> polar_to_cart(
+    std::vector<polar_point> p_points)
+{
+    std::vector<cart_point> c_points =
+        std::vector<cart_point>(p_points.size());
+    for(int i=0; i<c_points.size(); i++)
+    {
+        c_points[i] = polar_to_cart(p_points[i]);
+    }
+    return c_points;
+}
+
+std::vector<grid_cart_point> cart_to_grid(
+    std::vector<cart_point> c_points)
+{
+    std::vector<grid_cart_point> g_points =
+        std::vector<grid_cart_point>(c_points.size());
+    for(int i=0; i<g_points.size(); i++)
+    {
+        g_points[i] = cart_to_grid(c_points[i]);
+    }
+    return g_points;
+}
+
+double stl(cart_point c1, cart_point c2)
+{
+    return sqrt(pow(c1.x-c2.x,2)+pow(c1.y-c2.y,2    ));
+}
+
+cost_grid_point polar_cost_grid(cost_polar_point p_point)
+{
+    cost_grid_point cgp;
+    cgp.point = polar_to_grid(p_point.point);
+	//ROS_INFO("polar r %f theta %f, now %d %d", p_point.point.r, p_point.point.theta, cgp.point.x, cgp.point.y);
+    cgp.cost = p_point.cost;
+    return cgp;
+}
+
+std::vector<cost_grid_point> polar_cost_grid(std::vector<cost_polar_point> polar_points)
+{
+    std::vector<cost_grid_point> cgps = std::vector<cost_grid_point>(polar_points.size());
+    for(int i=0; i<cgps.size(); i++)
+    {
+        cgps[i] = polar_cost_grid(polar_points[i]);
+    }
+    return cgps;
+}
+
+std::vector<cart_point> cost_to_cart(std::vector<cost_point> cost_points)
+{
+    std::vector<cart_point> cart_points =
+        std::vector<cart_point>(cost_points.size());
+    for(int i=0; i<cart_points.size(); i++)
+    {
+        cart_points[i] = cost_points[i].point;
+    }
+    return cart_points;
+}
+
+bool unique_point(grid_cart_point point, std::vector<grid_cart_point> points)
+{
+    for(int i=0; i<points.size(); i++)
+    {
+        if(grid_cart_points_equal(point, points[i]))
+		{
+			//ROS_INFO("Point at index %d equal to point %d %d", i, point.x, point.y);
+            return false;
+		}
+    }
+    return true;
+}
+
+std::vector<grid_cart_point> merge_unique(std::vector<grid_cart_point> points1, std::vector<grid_cart_point> points2){
+    int unique_count = 0;
+    std::vector<grid_cart_point> merged_points = std::vector<grid_cart_point>(unique_count);
+    for(int i=0; i<points1.size(); i++)
+    {
+        if(unique_point(points1[i], merged_points))
+        {
+            merged_points.resize(unique_count+1);
+            merged_points[unique_count] = points1[i];
+            unique_count++;
+        }
+    }
+	for(int i=0; i<points2.size(); i++)
+    {
+        if(unique_point(points2[i], merged_points))
+        {
+            merged_points.resize(unique_count+1);
+            merged_points[unique_count] = points2[i];
+            unique_count++;
+        }
+    }
+    return merged_points;
+}
