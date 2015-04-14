@@ -1,6 +1,0 @@
-<package>
-  <description brief="rbe_500_model">rbe_500_model</description>
-  <depend package="gazebo" />
-  <author>me</author>
-  <license>BSD</license>
-</package>
