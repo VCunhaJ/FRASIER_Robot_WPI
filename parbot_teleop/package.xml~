@@ -41,10 +41,10 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>joy</build_depend>
-  <build_depend>roboteq_mc_nxtgen_driverr</build_depend>
+  <build_depend>roboteq_driver</build_depend>
   <build_depend>roscpp</build_depend>
   <run_depend>joy</run_depend>
-  <run_depend>roboteq_mc_nxtgen_driver</run_depend>
+  <run_depend>roboteq_driver</run_depend>
   <run_depend>roscpp</run_depend>
 
 

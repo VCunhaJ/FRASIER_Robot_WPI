@@ -57,9 +57,8 @@ void EuclideanCallback (const sensor_msgs::PointCloud2& objects)
  int clusterLength = clusterIndices.size();
     //cerr<<"Number of Clusters: "<<clusterLength<<endl;
 
-    //ROS_INFO("Found %lu clusters:", clusterIndices.size());
+    ROS_INFO("Found %lu clusters:", clusterIndices.size());
     
-    //Empty Buffer
     clusterIndices.clear();
 }
 

@@ -31,7 +31,7 @@ Additional nodes represent t
   <node name="euclidean_cluster_node" pkg="frasier_computer_vision" type="euclidean_cluster_node" args="0" output="screen" /> 
   
   <node name="region_growing_seg_node" pkg="frasier_computer_vision" type="region_growing_seg_node" args="0" output="screen" />
-  <node name="cylinder_fit_cup_node" pkg="frasier_computer_vision" type="cylinder_fit_cup_node" args="0" output="screen" />
+
  
   
   <node pkg="rviz" type="rviz" name="softkinect_rviz" respawn="false"  required="true"

@@ -44,7 +44,7 @@ void RegionGrowingCallback(const sensor_msgs::PointCloud2& objects)
 //Convert from PointCloud2 msg to PointCloud class object
 pcl::fromROSMsg(objects, *mainCloudPtr);
  
-//cerr << "Points in a CLOUD " << mainCloudPtr->points.size()<<endl;
+//cerr << "Points in a FUCKING CLOUD " << mainCloudPtr->points.size()<<endl;
 
 normalEstimator.setSearchMethod(treePtr);//method is kd-tree (d = 2.5D)
 normalEstimator.setInputCloud(mainCloudPtr);

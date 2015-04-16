@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
   parbot_motion_planning
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -116,7 +117,8 @@ add_executable(PARbot_pose_transformer_node src/PARbot_pose_transformer.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(parbot_pathplanning_node parbot_pathplanning_generate_messages_cpp)
+add_dependencies(PARbot_search_node parbot_motion_planning_generate_messages_cpp)
+add_dependencies(PARbot_cost_search_node parbot_motion_planning_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(PARbot_search_node
@@ -128,7 +130,7 @@ add_executable(PARbot_pose_transformer_node src/PARbot_pose_transformer.cpp)
  target_link_libraries(PARbot_cost_search_node
    ${catkin_LIBRARIES}
  )
- target_link_libraries(PARbot_pose_transformer_node 
+ target_link_libraries(PARbot_pose_transformer_node
    ${catkin_LIBRARIES})
 
 #############

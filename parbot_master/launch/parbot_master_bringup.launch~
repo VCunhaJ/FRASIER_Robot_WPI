@@ -8,6 +8,6 @@
         <include file="$(find parbot_ui)/launch/emergency_stop.launch" />
         <include file="$(find pixy)/launch/pixy.launch" />
         <include file="$(find parbot_motor_control)/launch/motor_control.launch" />
-   <!---     <include file="$(find computer_vision)/launch/frasier_computer_vision.launch" />
-   -->
+        <include file="$(find computer_vision)/launch/frasier_computer_vision.launch" />
+
 </launch>

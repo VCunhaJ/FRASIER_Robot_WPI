@@ -68,7 +68,7 @@ regionGrowing.extract (numClusters);
   
 //Display Cloud and Cluster on Terminal
 
-//cerr << "Number of clusters is equal to " << numClusters.size ()<<endl;
+cerr << "Number of clusters is equal to " << numClusters.size ()<<endl;
 
 
 
